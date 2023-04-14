@@ -35,10 +35,6 @@ public class ChatWebSocketServer {
      * 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
      */
     private static int onlineCount = 0;
-    /**
-     * concurrent包的线程安全Map，用来存放每个客户端对应的MyWebSocket对象。
-     */
-    private static ConcurrentHashMap<Long, ChatWebSocketServer> chatWebSocketMap = new ConcurrentHashMap<>();
 
     /**
      * 与某个客户端的连接会话，需要通过它来给客户端发送数据
@@ -103,14 +99,14 @@ public class ChatWebSocketServer {
                 ex.printStackTrace();
             }
         }
-        chatWebSocketMap.put(userId, this);
+        ChatWebSocketServerQueue.chatWebSocketMap.put(userId, this);
         onlineCount++;
         log.info(userId + "--open");
     }
 
     @OnClose
     public void onClose() {
-        chatWebSocketMap.remove(userId);
+        ChatWebSocketServerQueue.chatWebSocketMap.remove(userId);
         log.info(userId + "--close");
     }
 
@@ -129,6 +125,8 @@ public class ChatWebSocketServer {
         this.useLog.setCreateTime(LocalDateTime.now());
         this.useLog.setQuestion(message);
         this.useLog.setSendType(1);
+        //设置gpt模型
+        chatRequestParameter.setModel(chatModel.getModel());
         // 这里就会返回结果
         String answer = chatModel.getAnswer(session, chatRequestParameter, message,mainKey);
         if(StringUtils.isEmpty(answer)){
@@ -142,6 +140,7 @@ public class ChatWebSocketServer {
             }
         }else {
             this.useLog.setAnswer(answer);
+            //有答案就保存日志，不存在失败的情况
             asyncLogService.saveUseLog(useLog);
         }
     }
@@ -156,6 +155,8 @@ public class ChatWebSocketServer {
     }
 
     public static void sendInfo(String message, String toUserId) throws IOException {
-        chatWebSocketMap.get(toUserId).sendMessage(message);
+        ChatWebSocketServerQueue.chatWebSocketMap.get(toUserId).sendMessage(message);
     }
+
+
 }
