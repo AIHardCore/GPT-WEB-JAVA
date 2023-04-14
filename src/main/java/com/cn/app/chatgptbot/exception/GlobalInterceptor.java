@@ -1,6 +1,6 @@
 package com.cn.app.chatgptbot.exception;
 
-import com.cn.app.chatgptbot.base.Result;
+import com.cn.app.chatgptbot.base.B;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,18 +31,21 @@ public class GlobalInterceptor {
      */
     @ResponseBody
     @ExceptionHandler(value = Exception.class)
-    public Result exceptionHandler(Exception e) {
+    public B exceptionHandler(Exception e) {
         //interceptRequestParameterError
         if (e instanceof MethodArgumentNotValidException) {
             //getFirst
             final List<ObjectError> allErrors = ((MethodArgumentNotValidException) e).getBindingResult().getAllErrors();
-            return Result.error(allErrors.get(0).getDefaultMessage());
+            return B.finalBuild(allErrors.get(0).getDefaultMessage());
+            //return Result.error(allErrors.get(0).getDefaultMessage());
         }
         //blockCustomErrors
         if (e instanceof CustomException) {
-            return Result.error(e.getMessage());
+            return B.finalBuild(e.getMessage());
+            //return Result.error(e.getMessage());
         }
-        return Result.error(e.getMessage());
+        return B.finalBuild(e.getMessage());
+        //return Result.error(e.getMessage());
     }
 
 
