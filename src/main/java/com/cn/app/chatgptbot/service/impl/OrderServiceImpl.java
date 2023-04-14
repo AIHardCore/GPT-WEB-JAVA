@@ -15,15 +15,13 @@ import com.cn.app.chatgptbot.exception.CustomException;
 import com.cn.app.chatgptbot.model.*;
 import com.cn.app.chatgptbot.model.ali.AlipayNotifyParam;
 import com.cn.app.chatgptbot.model.ali.req.AliPayCreateReq;
-import com.cn.app.chatgptbot.model.req.CreateOrderReq;
-import com.cn.app.chatgptbot.model.req.OrderCallBackReq;
-import com.cn.app.chatgptbot.model.req.QueryOrderReq;
-import com.cn.app.chatgptbot.model.req.ReturnUrlReq;
+import com.cn.app.chatgptbot.model.req.*;
 import com.cn.app.chatgptbot.model.res.CreateOrderRes;
 import com.cn.app.chatgptbot.model.res.QueryOrderRes;
 import com.cn.app.chatgptbot.model.res.ReturnUrlRes;
 import com.cn.app.chatgptbot.service.*;
 import com.cn.app.chatgptbot.utils.JwtUtil;
+import com.cn.app.chatgptbot.utils.PayUtil;
 import com.cn.app.chatgptbot.utils.RedisUtil;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +51,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
     private IUserService userService;
 
     @Resource
+    private PayUtil payUtil;
+
+    @Resource
     private IRefuelingKitService refuelingKitService;
 
     @Override
@@ -70,7 +71,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         order.setPayType(req.getType());
         order.setCreateTime(LocalDateTime.now());
         this.save(order);
-        PayConfig payConfig = RedisUtil.getCacheObject("payConfig");
+        PayConfig payConfig = payUtil.init();
 //        PayConfig payConfig = payConfigService.lambdaQuery().list().get(0);
         CreateOrderRes res = new CreateOrderRes();
         res.setOutTradeNo(order.getId().toString());
@@ -88,12 +89,44 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
     }
 
     @Override
+    public B<CreateOrderRes> payOrder(PayOrderReq req) {
+        Order order = this.getById(req.getOrderId());
+        if (order.getState() == 2){
+            return B.finalBuild("订单状态异常无法支付，请联系客服处理！");
+        }
+        if (order.getState() == 1){
+            return B.finalBuild("订单已支付");
+        }
+        Product product = productService.getById(order.getProductId());
+        if (null == product) {
+            return B.finalBuild("商品异常");
+        }
+        if(product.getStock() < order.getPayNumber()){
+            return B.finalBuild("库存不足");
+        }
+        PayConfig payConfig = payUtil.init();
+        CreateOrderRes res = new CreateOrderRes();
+        res.setOutTradeNo(order.getId().toString());
+        res.setPid(payConfig.getPid());
+        res.setKey(payConfig.getSecretKey());
+        res.setMoney(order.getPrice().toString());
+        res.setName(product.getName());
+        res.setUrl(payConfig.getSubmitUrl());
+        res.setNotifyUrl(payConfig.getNotifyUrl()+"/order/callback");
+        res.setReturnUrl(payConfig.getReturnUrl());
+        res.setType(order.getPayType());
+        res.setSign(createSign(res));
+        res.setKey(null);
+        return B.okBuild(res);
+    }
+
+    @Override
     public B returnUrl(ReturnUrlReq req) {
         Order order = this.getById(req.getOrderId());
         if(order.getState() == 1){
             return B.finalBuild("订单已完成");
         }
-        PayConfig payConfig = RedisUtil.getCacheObject("payConfig");
+        PayConfig payConfig = payUtil.init();
 //        PayConfig payConfig = payConfigService.lambdaQuery().list().get(0);
         Map<String, Object> map = new HashMap<>();
         map.put("act","order");
@@ -234,7 +267,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
 
     @Override
     public B<String> aliCreateOrder(AliPayCreateReq req) throws Exception {
-        PayConfig payConfig = RedisUtil.getCacheObject("payConfig");
+        PayConfig payConfig = payUtil.init();
         if(payConfig.getPayType() < 2){
             return B.finalBuild("支付宝支付通道关闭");
         }
@@ -264,7 +297,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
     @Override
     public String aliCallBack(HttpServletRequest request) throws Exception {
         Map<String, String> stringStringMap = AliPayConfig.convertRequestParamsToMap(request);
-        PayConfig payConfig = RedisUtil.getCacheObject("payConfig");
+        PayConfig payConfig = payUtil.init();
         if (Factory.Payment.Common().verifyNotify(stringStringMap)){
             if(!stringStringMap.get("app_id").equals(payConfig.getAliAppId())){
                 log.info("appId不一致");

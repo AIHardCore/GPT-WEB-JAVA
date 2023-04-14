@@ -4,10 +4,7 @@ import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.model.ali.req.AliPayCreateReq;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
-import com.cn.app.chatgptbot.model.req.CreateOrderReq;
-import com.cn.app.chatgptbot.model.req.OrderCallBackReq;
-import com.cn.app.chatgptbot.model.req.QueryOrderReq;
-import com.cn.app.chatgptbot.model.req.ReturnUrlReq;
+import com.cn.app.chatgptbot.model.req.*;
 import com.cn.app.chatgptbot.model.res.CreateOrderRes;
 import com.cn.app.chatgptbot.service.IGptKeyService;
 import com.cn.app.chatgptbot.service.IOrderService;
@@ -45,6 +42,12 @@ public class OrderController {
     @ApiOperation(value = "创建预订单")
     public B<CreateOrderRes> createOrder(@Validated @RequestBody CreateOrderReq req) {
         return orderService.createOrder(req);
+    }
+
+    @RequestMapping(value = "/pay", method = RequestMethod.POST)
+    @ApiOperation(value = "支付订单")
+    public B<CreateOrderRes> payOrder(@Validated @RequestBody PayOrderReq req) {
+        return orderService.payOrder(req);
     }
 
 

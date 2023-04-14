@@ -7,10 +7,7 @@ import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.ali.req.AliPayCreateReq;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
-import com.cn.app.chatgptbot.model.req.CreateOrderReq;
-import com.cn.app.chatgptbot.model.req.OrderCallBackReq;
-import com.cn.app.chatgptbot.model.req.QueryOrderReq;
-import com.cn.app.chatgptbot.model.req.ReturnUrlReq;
+import com.cn.app.chatgptbot.model.req.*;
 import com.cn.app.chatgptbot.model.res.CreateOrderRes;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +24,8 @@ public interface IOrderService extends IService<Order> {
 
 
     B<CreateOrderRes> createOrder(CreateOrderReq req);
+
+    B<CreateOrderRes> payOrder(PayOrderReq req);
 
     B returnUrl(ReturnUrlReq req);
 
