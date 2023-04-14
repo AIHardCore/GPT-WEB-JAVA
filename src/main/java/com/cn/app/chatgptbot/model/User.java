@@ -23,6 +23,11 @@ public class User extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 326308725675949330L;
     /**
+     * openid
+     */
+    @ApiModelProperty(value = "openid", position = 5)
+    private String openId;
+    /**
      * 姓名
      */
     @ApiModelProperty(value = "姓名", position = 5)
@@ -44,9 +49,9 @@ public class User extends BaseEntity implements Serializable {
     private LocalDateTime lastLoginTime;
 
     /**
-     * 类型 0 次数用户 1 月卡用户
+     * 类型 0 次数用户 1 月卡用户 2 终身版用户
      */
-    @ApiModelProperty(value = "类型 0 次数用户 1 月卡用户", position = 10)
+    @ApiModelProperty(value = "类型 0 次数用户 1 月卡用户 2 终身版用户", position = 10)
     private Integer type;
 
     /**
