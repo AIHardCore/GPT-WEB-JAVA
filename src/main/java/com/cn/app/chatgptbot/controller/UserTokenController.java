@@ -46,7 +46,7 @@ public class UserTokenController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ApiOperation(value = "用户登录")
-    @AvoidRepeatRequest(intervalTime = 60 * 3L ,msg = "请勿短时间连续登录")
+    @AvoidRepeatRequest(intervalTime = 20 ,msg = "请勿短时间连续登录")
     public B<JSONObject> userLogin(@Validated @RequestBody UserLogin userLogin) {
         List<User> list = userService.lambdaQuery()
                 .eq(User::getMobile, userLogin.getMobile())
@@ -75,7 +75,7 @@ public class UserTokenController {
     }
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ApiOperation(value = "注册")
-    @AvoidRepeatRequest(msg = "请勿短时间内重复注册")
+    @AvoidRepeatRequest(intervalTime = 20, msg = "请勿短时间内重复注册")
     public B register(@Validated @RequestBody RegisterReq req) {
         return userService.register(req);
     }
