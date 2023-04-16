@@ -1,9 +1,13 @@
 package com.cn.app.chatgptbot.flow.server;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.IdUtil;
+import com.alibaba.fastjson2.JSON;
 import com.cn.app.chatgptbot.base.Result;
 import com.cn.app.chatgptbot.constant.CommonConst;
+import com.cn.app.chatgptbot.flow.chat.ChatMessage;
 import com.cn.app.chatgptbot.flow.chat.ChatRequestParameter;
+import com.cn.app.chatgptbot.flow.chat.MyChatMessage;
 import com.cn.app.chatgptbot.flow.model.ChatModel;
 import com.cn.app.chatgptbot.flow.service.CheckService;
 import com.cn.app.chatgptbot.model.UseLog;
@@ -49,6 +53,7 @@ public class ChatWebSocketServer {
 
     private static AsyncLogService asyncLogService;
 
+    private static ConcurrentHashMap<Long, ChatWebSocketServer> chatWebSocketMap = new ConcurrentHashMap<>();
 
     private static CheckService checkService;
 
@@ -99,19 +104,33 @@ public class ChatWebSocketServer {
                 ex.printStackTrace();
             }
         }
-        ChatWebSocketServerQueue.chatWebSocketMap.put(userId, this);
+        chatWebSocketMap.put(userId, this);
         onlineCount++;
         log.info(userId + "--open");
     }
 
     @OnClose
     public void onClose() {
-        ChatWebSocketServerQueue.chatWebSocketMap.remove(userId);
+        chatWebSocketMap.remove(userId);
         log.info(userId + "--close");
     }
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
+        if (StringUtils.isEmpty(message)){
+            return;
+        }
+
+
+        MyChatMessage myChatMessage = JSON.parseObject(message, MyChatMessage.class);
+        if (myChatMessage.getConversationId() == null){
+            myChatMessage.setConversationId(IdUtil.simpleUUID());
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        BeanUtil.copyProperties(myChatMessage,chatMessage);
+        chatMessage.setRole(this.userId.toString());
+
         final String mainKey = GptUtil.getMainKey();
         Result result = checkService.checkUser(mainKey, this.userId,session);
         if(result.getCode() != 20000){
@@ -120,18 +139,19 @@ public class ChatWebSocketServer {
         }
         UseLog data = (UseLog) result.getData();
         BeanUtil.copyProperties(data,this.useLog);
-        log.info(userId + "--" + message);
+        log.info(userId + "--" + chatMessage.getContent());
         // 记录日志
         this.useLog.setCreateTime(LocalDateTime.now());
-        this.useLog.setQuestion(message);
+        this.useLog.setQuestion(chatMessage.getContent());
+        this.useLog.setConversationId(myChatMessage.getConversationId());
         this.useLog.setSendType(1);
         //设置gpt模型
         chatRequestParameter.setModel(chatModel.getModel());
         // 这里就会返回结果
-        String answer = chatModel.getAnswer(session, chatRequestParameter, message,mainKey);
+        String answer = chatModel.getAnswer(session, chatRequestParameter, chatMessage.getContent(),mainKey);
         if(StringUtils.isEmpty(answer)){
             //将key删除
-            GptUtil.removeKey(Collections.singletonList(mainKey));
+            //GptUtil.removeKey(Collections.singletonList(mainKey));
             Integer resulCode = GptUtil.getRandomKey(mainKey);
             if(resulCode == -1){
                 session.getBasicRemote().sendText("暂无可使用的key，请联系管理员");
@@ -155,7 +175,7 @@ public class ChatWebSocketServer {
     }
 
     public static void sendInfo(String message, String toUserId) throws IOException {
-        ChatWebSocketServerQueue.chatWebSocketMap.get(toUserId).sendMessage(message);
+        chatWebSocketMap.get(toUserId).sendMessage(message);
     }
 
 

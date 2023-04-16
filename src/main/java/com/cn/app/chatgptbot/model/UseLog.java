@@ -28,6 +28,12 @@ public class UseLog extends BaseEntity implements Serializable {
     private Long userId;
 
     /**
+     * conversationId
+     */
+    @ApiModelProperty(value = "会话id", position = 5)
+    private String conversationId;
+
+    /**
      * 使用次数
      */
     @ApiModelProperty(value = "使用次数", position = 7)

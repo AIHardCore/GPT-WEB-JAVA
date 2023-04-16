@@ -53,9 +53,11 @@ public interface IUserService extends IService<User> {
     B delete(BaseDeleteEntity params);
 
     B register(RegisterReq req);
+
     B<UserInfoRes> home();
 
     B<AdminHomeRes> adminHome();
+
     B<UserInfoRes> getType();
 
     B<UserInfoRes> getType(Long userId);

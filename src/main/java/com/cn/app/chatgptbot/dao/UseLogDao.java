@@ -5,6 +5,8 @@ import com.cn.app.chatgptbot.model.GptKey;
 import com.cn.app.chatgptbot.model.UseLog;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * 商品表(Product)表数据库访问层
  *
@@ -16,6 +18,11 @@ public interface UseLogDao extends BaseMapper<UseLog> {
 
     Integer getDayUseNumber(@Param("userId") Long userId);
 
-
+    /**
+     * 用户id分组查询会话列表
+     * @param userId
+     * @return
+     */
+    List<UseLog> findLogByConversationId (@Param("userId") Long userId);
 
 }

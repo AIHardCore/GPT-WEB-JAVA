@@ -1,6 +1,8 @@
 package com.cn.app.chatgptbot.controller;
 
 import com.cn.app.chatgptbot.base.B;
+import com.cn.app.chatgptbot.model.base.BasePageHelper;
+import com.cn.app.chatgptbot.model.req.PageLogReq;
 import com.cn.app.chatgptbot.model.req.ResetLogReq;
 import com.cn.app.chatgptbot.model.req.UpdateLogReq;
 import com.cn.app.chatgptbot.service.IUseLogService;
@@ -37,6 +39,13 @@ public class UseLogController {
     public B updateLog(@Validated @RequestBody UpdateLogReq req) {
         return useLogService.updateLog(req);
     }
+
+    @RequestMapping(value = "/queryPage", method = RequestMethod.POST)
+    @ApiOperation(value = "分页查询聊天记录")
+    public B queryPage(@Validated @RequestBody BasePageHelper basePageHelper) {
+        return useLogService.queryPage(basePageHelper);
+    }
+
     @RequestMapping(value = "/resetLog", method = RequestMethod.POST)
     @ApiOperation(value = "修改聊天状态")
     public B resetLog(@Validated @RequestBody ResetLogReq req) {

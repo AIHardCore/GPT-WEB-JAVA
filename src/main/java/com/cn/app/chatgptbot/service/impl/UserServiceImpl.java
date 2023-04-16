@@ -168,12 +168,16 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         userInfo.setKitList(userRefuelingKitRes);
         List<Announcement> list = announcementService.lambdaQuery().select(Announcement::getContent).orderByDesc(Announcement::getSort).last("limit 1").list();
         userInfo.setContent((null != list && list.size() > 0) ? list.get(0).getContent() : "暂无通知公告");
-        List<UseLog> useLogList = useLogService.lambdaQuery()
+        List<UseLog> useLogList1 = useLogService.lambdaQuery()
                 .eq(UseLog::getUserId, JwtUtil.getUserId())
                 .orderByDesc(UseLog::getId).last("limit 10").list();
+        userInfo.setLogList1(useLogList1);
+        List<UseLog> useLogList = useLogService.findLogByConversationId(JwtUtil.getUserId());
         userInfo.setLogList(useLogList);
         return B.okBuild(userInfo);
     }
+
+
 
     @Override
     public B<AdminHomeRes> adminHome() {

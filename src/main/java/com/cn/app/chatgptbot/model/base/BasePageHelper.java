@@ -29,5 +29,7 @@ public class BasePageHelper implements Serializable {
 
     private Long userId;
 
+    private String conversationId;
+
     private Integer type;
 }

@@ -45,4 +45,7 @@ public class UserInfoRes implements Serializable {
     @ApiModelProperty(value = "对话列表最新10条", position = 12)
     private List<UseLog> logList;
 
+    @ApiModelProperty(value = "对话列表最新10条", position = 12)
+    private List<UseLog> logList1;
+
 }

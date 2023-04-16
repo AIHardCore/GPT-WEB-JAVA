@@ -31,7 +31,7 @@ public class ChatModel {
      * 这里分别代表密钥，请求的地址，编码
      */
     private String url="https://api.openai.com/v1/chat/completions";
-
+    private String model = "gpt-3.5-turbo";
     private Charset charset = StandardCharsets.UTF_8;
 
     /**
@@ -39,6 +39,10 @@ public class ChatModel {
      */
     private CloseableHttpAsyncClient asyncClient = HttpAsyncClients.createDefault();
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    public String getModel() {
+        return model;
+    }
 
     /**
      * 该方法会异步请求chatGpt的接口，返回答案
@@ -218,7 +222,6 @@ public class ChatModel {
         // 返回最终答案，用于保存数据库的
         return sb.toString();
     }
-
 
     /**
      * 这个方法和上面一样，用于测试的，可以在控制台打印输出结果
