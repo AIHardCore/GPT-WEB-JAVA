@@ -46,12 +46,12 @@ public class CheckService {
     public Result checkUser(String mainKey, Long userId, Session session) throws IOException {
         String redisToken  = RedisUtil.getCacheObject(CommonConst.REDIS_KEY_PREFIX_TOKEN + userId);
         if(StringUtils.isEmpty(redisToken)){
-            session.getBasicRemote().sendText("请先登录");
+            //session.getBasicRemote().sendText("请先登录");
             return Result.error("请先登录");
         }
         List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getKey, mainKey).last("limit 1").list();
         if(null == gptKeyList || gptKeyList.size() == 0){
-            session.getBasicRemote().sendText("Key 异常 请稍后重试");
+            //session.getBasicRemote().sendText("Key 异常 请稍后重试");
             return Result.error("Key 异常 请稍后重试");
         }
         //查询当前用户信息
@@ -65,8 +65,8 @@ public class CheckService {
             if(type == 0){
                 //判断剩余次数
                 if(user.getRemainingTimes() < 1){
-                    session.getBasicRemote().sendText("剩余次数不足请充值");
-                    return Result.error("剩余次数不足请充值");
+                    //session.getBasicRemote().sendText("${<INSUFFICIENT_FREQUENCY>}");
+                    return Result.error("剩余次数不足,请充值");
                 }
                 useLog.setUseType(1);
                 user.setRemainingTimes(user.getRemainingTimes() - 1);
@@ -82,7 +82,7 @@ public class CheckService {
                     if(user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
                         //次数用户 查询用户次数
                         if(user.getRemainingTimes() < 1){
-                            session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
+                            //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("月卡过期或当日已超过最大访问次数");
                         }
                         useLog.setUseType(1);
@@ -93,7 +93,7 @@ public class CheckService {
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
                             //判断剩余次数
                             if(user.getRemainingTimes() < 1){
-                                session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
+                                //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                                 return Result.error("月卡过期或当日已超过最大访问次数");
                             }
                             useLog.setUseType(1);
