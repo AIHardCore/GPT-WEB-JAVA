@@ -22,7 +22,6 @@ import com.cn.app.chatgptbot.model.res.ReturnUrlRes;
 import com.cn.app.chatgptbot.service.*;
 import com.cn.app.chatgptbot.utils.JwtUtil;
 import com.cn.app.chatgptbot.utils.PayUtil;
-import com.cn.app.chatgptbot.utils.RedisUtil;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 

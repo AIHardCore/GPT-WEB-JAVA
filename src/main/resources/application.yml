@@ -42,3 +42,20 @@ we-chat:
   secret: ''
 # bing机器人请求路径
 bingUrl: "http://XXXXXXXXX:3000/bing"
+
+
+
+aliyun:
+  sms:
+    #AccessKey Id
+    accessKeyId: LTAI5t92m8WNkAYaennyRyJQ
+    #AccessKey Secret
+    accessKeySecret: UNcjrq6ET6i0EuJ6TPiAi1ABae2zNz
+    #api接口地址
+    api: dysmsapi.aliyuncs.com
+    #短信模板CODE
+    templateCode: SMS_176520811
+    #短信签名名称
+    signName: 爱硬核
+    #服务地址
+    regionID: cn-shenzhen

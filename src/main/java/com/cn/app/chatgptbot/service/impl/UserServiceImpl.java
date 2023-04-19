@@ -11,20 +11,24 @@ import com.cn.app.chatgptbot.dao.OrderDao;
 import com.cn.app.chatgptbot.dao.RefuelingKitDao;
 import com.cn.app.chatgptbot.dao.UserDao;
 import com.cn.app.chatgptbot.model.Announcement;
+import com.cn.app.chatgptbot.model.SMSLog;
 import com.cn.app.chatgptbot.model.UseLog;
 import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
+import com.cn.app.chatgptbot.model.req.SMSLogReq;
 import com.cn.app.chatgptbot.model.res.*;
 import com.cn.app.chatgptbot.service.IAnnouncementService;
+import com.cn.app.chatgptbot.service.ISMSLogService;
 import com.cn.app.chatgptbot.service.IUseLogService;
 import com.cn.app.chatgptbot.service.IUserService;
 import com.cn.app.chatgptbot.utils.JwtUtil;
-import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,9 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
 
     @Resource
     OrderDao orderDao;
+
+    @Resource
+    ISMSLogService smsLogService;
 
     /**
      * 分页查询User
@@ -138,11 +145,22 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         if(count > 0){
             return B.finalBuild("用户已存在");
         }
+        SMSLog smsLog = smsLogService.findUnUseByMobileAndCode(req.getMobile(),req.getMsgCode());
+        if (smsLog == null){
+            return B.finalBuild("验证码无效");
+        }
+        smsLog.setState(1);
+        smsLogService.updateById(smsLog);
         user.setCreateTime(LocalDateTime.now());
         user.setOperateTime(LocalDateTime.now());
         user.setRemainingTimes(10);
         this.save(user);
         return B.okBuild();
+    }
+
+    @Override
+    public B sendSMS(@Validated SMSLogReq req) {
+        return smsLogService.sendRegisterSMS(req.getMobile());
     }
 
     @Override
