@@ -87,6 +87,17 @@ public class SMSLogServiceImpl extends ServiceImpl<SMSLogDao, SMSLog> implements
             this.save(smsLog);
             return B.okBuild();
         }else {
+            if ("isv.DAY_LIMIT_CONTROL".equals(body.getMessage())){
+                return B.finalBuild("操作太频繁了,请稍后再试！");
+            }
+            switch (body.getCode()){
+                case "isv.DAY_LIMIT_CONTROL":
+                    log.warn(String.format("手机号：%s,触发日发送限额",mobile));
+                    return B.finalBuild("操作太频繁了,请稍后再试！");
+                case "isv.BUSINESS_LIMIT_CONTROL":
+                    log.warn(String.format("手机号：%s,触发调用频率限额(触发云通信流控限制)",mobile));
+                    return B.finalBuild("操作太频繁了,请稍后再试！");
+            }
             return B.finalBuild("服务器开小差了,请稍后再试！");
         }
     }
