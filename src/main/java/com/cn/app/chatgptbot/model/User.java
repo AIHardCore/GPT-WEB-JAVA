@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.cn.app.chatgptbot.model.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -19,6 +18,9 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("user")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 326308725675949330L;

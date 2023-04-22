@@ -20,4 +20,10 @@ public class RefuelingKitServiceImpl extends ServiceImpl<RefuelingKitDao, Refuel
         Long kitId = this.baseMapper.getUserKitId(JwtUtil.getUserId());
         return  kitId == null ? 0 : kitId;
     }
+
+    @Override
+    public Long getUserKitId(Long userId) {
+        Long kitId = this.baseMapper.getUserKitId(userId);
+        return  kitId == null ? 0 : kitId;
+    }
 }

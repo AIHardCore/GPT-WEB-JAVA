@@ -61,29 +61,39 @@ public class CheckService {
         User user = userService.getById(userId);
         B<UserInfoRes> userInfo = userService.getType(userId);
         Integer type = userInfo.getData().getType();
-        if(type != 2){
-            if(type == 0){
+        if (type != -1){
+            if(type == 1){
                 //判断剩余次数
                 if(user.getRemainingTimes() < 1){
                     //session.getBasicRemote().sendText("${<INSUFFICIENT_FREQUENCY>}");
                     return Result.error("剩余次数不足,请充值");
                 }
+                //是否已达今日已达上线
+                Integer dayUseNumber = useLogService.getDayUseNumber();
+                if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
+                    return Result.error("当日已超过最大访问次数");
+                }
                 useLog.setUseType(1);
                 user.setRemainingTimes(user.getRemainingTimes() - 1);
-            }
-            if(type == 1){
-                //月卡用户 先查询是否有可用的加油包
-                Long userKitId = refuelingKitService.getUserKitId();
+            }else {
+                //套餐用户 先查询是否有可用的加油包
+                Long userKitId = refuelingKitService.getUserKitId(userId);
                 if(userKitId > 0){
                     useLog.setKitId(userKitId);
-                    useLog.setUseType(3);
+                    useLog.setUseType(1);
                 }else {
-                    //判断月卡是否到期
+                    //判断套餐是否到期
                     if(user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
                         //次数用户 查询用户次数
                         if(user.getRemainingTimes() < 1){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
-                            return Result.error("月卡过期或当日已超过最大访问次数");
+                            return Result.error("剩余次数不足,请充值");
+                        }
+                        //是否已达今日已达上线
+                        Integer dayUseNumber = useLogService.getDayUseNumber();
+                        if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
+                            //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
+                            return Result.error("当日已超过最大访问次数");
                         }
                         useLog.setUseType(1);
                         user.setRemainingTimes(user.getRemainingTimes() - 1);
@@ -91,15 +101,11 @@ public class CheckService {
                         //是否已达今日已达上线
                         Integer dayUseNumber = useLogService.getDayUseNumber();
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
-                            //判断剩余次数
-                            if(user.getRemainingTimes() < 1){
-                                //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
-                                return Result.error("月卡过期或当日已超过最大访问次数");
-                            }
-                            useLog.setUseType(1);
-                            user.setRemainingTimes(user.getRemainingTimes() - 1);
+                            //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
+                            return Result.error("当日已超过最大访问次数");
                         }else {
                             useLog.setUseType(2);
+                            user.setRemainingTimes(user.getRemainingTimes() - 1);
                         }
                     }
                 }

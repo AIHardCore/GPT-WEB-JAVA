@@ -8,16 +8,21 @@ import com.cn.app.chatgptbot.config.AvoidRepeatRequest;
 import com.cn.app.chatgptbot.constant.CommonConst;
 import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.UserLogin;
+import com.cn.app.chatgptbot.model.base.WxUserLogin;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
 import com.cn.app.chatgptbot.model.req.SMSLogReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
+import com.cn.app.chatgptbot.model.wx.AccessTokenInfo;
+import com.cn.app.chatgptbot.model.wx.WxUserInfo;
 import com.cn.app.chatgptbot.service.IUserService;
+import com.cn.app.chatgptbot.service.IWxService;
 import com.cn.app.chatgptbot.utils.JwtUtil;
 import com.cn.app.chatgptbot.utils.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +47,8 @@ public class UserTokenController {
     final IUserService userService;
 
     final RedisUtil redisUtil;
+
+    final IWxService wxService;
 
 
 
@@ -75,12 +82,50 @@ public class UserTokenController {
 
     }
 
+    @RequestMapping(value = "/wxlogin", method = RequestMethod.POST)
+    @ApiOperation(value = "用户登录")
+    @AvoidRepeatRequest(intervalTime = 10 ,msg = "请勿短时间连续登录")
+    public B<JSONObject> wxlogin(@Validated @RequestBody WxUserLogin userLogin) {
+        if (StringUtils.isEmpty(userLogin.getCode())){
+            return B.finalBuild("code为空，授权失败！");
+        }
+        User user = null;
+        AccessTokenInfo accessTokenInfo = wxService.getAccessTokenInfo(userLogin.getCode());
+        List<User> list = userService.lambdaQuery()
+                .eq(User::getOpenId, accessTokenInfo.getOpenid())
+                .ne(User::getType,-1)
+                .list();
+        if (list == null || list.size() == 0) {
+            WxUserInfo userInfo = wxService.getUserInfo(accessTokenInfo.getAccessToken(),accessTokenInfo.getOpenid());
+            user = userService.register(userInfo);
+        }else {
+            user = list.get(0);
+        }
+        JSONObject jsonObject = new JSONObject();
+        //生成token
+        String token = JwtUtil.createToken(user);
+        jsonObject.put("token", token);
+        jsonObject.put("userId", user.getId());
+        jsonObject.put("name", user.getName());
+        jsonObject.put("type", user.getType());
+        jsonObject.put("expirationTime", user.getExpirationTime());
+        User nweUser = new User();
+        nweUser.setId(user.getId());
+        nweUser.setLastLoginTime(LocalDateTime.now());
+        jsonObject.put("lastLoginTime", null == user.getLastLoginTime() ? nweUser.getLastLoginTime() : user.getLastLoginTime());
+        userService.updateById(nweUser);
+        return B.build(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), jsonObject);
+
+    }
+
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ApiOperation(value = "注册")
     @AvoidRepeatRequest(intervalTime = 20, msg = "请勿短时间内重复注册")
     public B register(@Validated @RequestBody RegisterReq req) {
         return userService.register(req);
     }
+
+
 
     @RequestMapping(value = "/smsCode", method = RequestMethod.POST)
     @ApiOperation(value = "发送注册验证码")

@@ -18,6 +18,8 @@ public interface IRefuelingKitService extends IService<RefuelingKit> {
 
     Long getUserKitId();
 
+    Long getUserKitId(Long userId);
+
 
 
 

@@ -13,6 +13,7 @@ public class WhiteApiList {
     static {
 
         //登录
+        list.add("/wx/gzhInfo");
         list.add("/user/token/login");
         list.add("/user/token/admin/login");
         //注册

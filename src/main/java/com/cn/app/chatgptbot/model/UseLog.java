@@ -42,7 +42,7 @@ public class UseLog extends BaseEntity implements Serializable {
     /**
      * 使用类型 1 次数 2 月卡
      */
-    @ApiModelProperty(value = "使用类型 1 次数 2 月卡 3 加油包", position = 7)
+    @ApiModelProperty(value = "使用类型 1 次数 2 套餐 3 加油包", position = 7)
     private Integer useType;
 
     /**

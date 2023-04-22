@@ -138,6 +138,13 @@
 			<artifactId>alipay-easysdk</artifactId>
 			<version>2.2.2</version>
 		</dependency>
+		<!--微信支付工具-->
+		<!-- https://mvnrepository.com/artifact/com.github.wechatpay-apiv3/wechatpay-apache-httpclient -->
+		<dependency>
+			<groupId>com.github.wechatpay-apiv3</groupId>
+			<artifactId>wechatpay-apache-httpclient</artifactId>
+			<version>0.4.9</version>
+		</dependency>
 		<!--阿里云短信sdk-->
 		<dependency>
 			<groupId>com.aliyun</groupId>

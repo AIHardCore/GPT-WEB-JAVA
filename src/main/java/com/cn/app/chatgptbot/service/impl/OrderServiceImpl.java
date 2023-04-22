@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.config.ali.AliPayConfig;
+import com.cn.app.chatgptbot.constant.RedisKey;
 import com.cn.app.chatgptbot.dao.OrderDao;
 import com.cn.app.chatgptbot.exception.CustomException;
 import com.cn.app.chatgptbot.model.*;
@@ -19,12 +20,16 @@ import com.cn.app.chatgptbot.model.req.*;
 import com.cn.app.chatgptbot.model.res.CreateOrderRes;
 import com.cn.app.chatgptbot.model.res.QueryOrderRes;
 import com.cn.app.chatgptbot.model.res.ReturnUrlRes;
+import com.cn.app.chatgptbot.model.wx.PayCallBack;
+import com.cn.app.chatgptbot.model.wx.PrepayResult;
+import com.cn.app.chatgptbot.model.wx.WxPay;
 import com.cn.app.chatgptbot.service.*;
 import com.cn.app.chatgptbot.utils.JwtUtil;
 import com.cn.app.chatgptbot.utils.PayUtil;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import com.cn.app.chatgptbot.utils.RedisUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,10 +58,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
     private PayUtil payUtil;
 
     @Resource
+    private IWxService wxService;
+
+    @Resource
     private IRefuelingKitService refuelingKitService;
 
     @Override
-    public synchronized  B<CreateOrderRes> createOrder(CreateOrderReq req) {
+    public synchronized  B<PrepayResult> createOrder(CreateOrderReq req) {
         Product product = productService.getById(req.getProductId());
         if (null == product) {
             return B.finalBuild("商品异常");
@@ -64,37 +72,44 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         if(product.getStock() < req.getPayNumber()){
             return B.finalBuild("库存不足");
         }
+        User user = userService.getById(JwtUtil.getUserId());
+        //状态检查
+        if (user.getDeleted()){
+            log.error(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
+            throw new CustomException(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
+        }
         Order order = BeanUtil.copyProperties(req, Order.class);
-        order.setUserId(JwtUtil.getUserId());
+        order.setUserId(user.getId());
         order.setPrice(product.getPrice().multiply(new BigDecimal(req.getPayNumber())));
         order.setPayType(req.getType());
         order.setCreateTime(LocalDateTime.now());
         this.save(order);
-        PayConfig payConfig = payUtil.init();
-//        PayConfig payConfig = payConfigService.lambdaQuery().list().get(0);
-        CreateOrderRes res = new CreateOrderRes();
-        res.setOutTradeNo(order.getId().toString());
-        res.setPid(payConfig.getPid());
-        res.setKey(payConfig.getSecretKey());
-        res.setMoney(order.getPrice().toString());
-        res.setName(product.getName());
-        res.setUrl(payConfig.getSubmitUrl());
-        res.setNotifyUrl(payConfig.getNotifyUrl()+"/order/callback");
-        res.setReturnUrl(payConfig.getReturnUrl());
-        res.setType(req.getType());
-        res.setSign(createSign(res));
-        res.setKey(null);
-        return B.okBuild(res);
+
+        //将价格转成微信的价格单位：分
+        long total = product.getPrice().multiply(new BigDecimal(100)).longValue();
+        PrepayResult result = wxService.prepay(user.getOpenId(),order.getUserId().toString(),product.getName(),total);
+        return B.okBuild(result);
     }
 
     @Override
-    public B<CreateOrderRes> payOrder(PayOrderReq req) {
+    public B<PrepayResult> payOrder(PayOrderReq req) {
         Order order = this.getById(req.getOrderId());
         if (order.getState() == 2){
             return B.finalBuild("订单状态异常无法支付，请联系客服处理！");
         }
         if (order.getState() == 1){
             return B.finalBuild("订单已支付");
+        }
+
+        User user = userService.getById(JwtUtil.getUserId());
+        //状态检查
+        if (user.getDeleted()){
+            log.error(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
+            throw new CustomException(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
+        }
+        if (!order.getUserId().equals(user.getId())){
+            log.error(String.format("原订单用户：id[%s]、现用户：id[%s]！不能支付别人的订单！",order.getUserId(),user.getId()));
+            throw new CustomException("不能支付别人的订单");
         }
         Product product = productService.getById(order.getProductId());
         if (null == product) {
@@ -103,20 +118,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         if(product.getStock() < order.getPayNumber()){
             return B.finalBuild("库存不足");
         }
-        PayConfig payConfig = payUtil.init();
-        CreateOrderRes res = new CreateOrderRes();
-        res.setOutTradeNo(order.getId().toString());
-        res.setPid(payConfig.getPid());
-        res.setKey(payConfig.getSecretKey());
-        res.setMoney(order.getPrice().toString());
-        res.setName(product.getName());
-        res.setUrl(payConfig.getSubmitUrl());
-        res.setNotifyUrl(payConfig.getNotifyUrl()+"/order/callback");
-        res.setReturnUrl(payConfig.getReturnUrl());
-        res.setType(order.getPayType());
-        res.setSign(createSign(res));
-        res.setKey(null);
-        return B.okBuild(res);
+        //将价格转成微信的价格单位：分
+        long total = product.getPrice().multiply(new BigDecimal(100)).longValue();
+        PrepayResult result = wxService.prepay(user.getOpenId(),order.getUserId().toString(),product.getName(),total);
+        return B.okBuild(result);
     }
 
     @Override
@@ -197,26 +202,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
     }
 
     @Override
-    public String callback(OrderCallBackReq req) {
+    public PayCallBack callback(OrderCallBackReq req) {
         log.info("支付开始回调，回调参数：{}",req.toString());
-        Order order = this.getById(req.getOut_trade_no());
+        Order order = this.getById(req.getResource().getOutTradeNo());
+        PayCallBack callBack = new PayCallBack("FAIL","业务处理异常");
         if(order.getState() == 1){
-            return "success";
+            return new PayCallBack("SUCCESS","处理完成");
         }
-        order.setPayType(req.getType());
-        order.setTradeNo(req.getTrade_no());
-        BigDecimal money = new BigDecimal(req.getMoney());
+        order.setPayType("wxpay"); //暂时只有微信支付
+        order.setTradeNo(order.getTradeNo());
+        BigDecimal money = new BigDecimal(req.getResource().getAmount().getTotal());
         if (money.compareTo(order.getPrice()) != 0) {
             log.info("支付失败,支付金额异常，支付金额：{},订单金额：{}", money, order.getPrice());
             order.setMsg("支付失败,支付金额异常，支付金额：" + money + "订单金额" + order.getPrice());
             order.setState(2);
+            return callBack;
         }
-        if (req.getTrade_status().equals("TRADE_SUCCESS")) {
+        if (req.getResource().getTradeState().equals("SUCCESS")) {
             order.setState(1);
             order.setMsg("支付成功");
         } else {
-            log.info("支付失败,支付状态：{}", req.getTrade_status());
-            order.setMsg("支付失败,支付状态：" + req.getTrade_status());
+            log.info("支付失败,支付状态：{}", req.getResource().getTradeState());
+            order.setMsg("支付失败,支付状态：" + req.getResource().getTradeState());
             order.setState(2);
         }
         order.setOperateTime(LocalDateTime.now());
@@ -224,10 +231,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         if (order.getState() == 1) {
             Product product = productService.getById(order.getProductId());
             User user = userService.getById(order.getUserId());
-            if (product.getType() == 0) {
-                //次数
-                user.setRemainingTimes(user.getRemainingTimes() + product.getNumberTimes());
-            }
             if (product.getType() == 1) {
                 //月卡
                 if(null == user.getExpirationTime()){
@@ -235,12 +238,48 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
                 } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
                     user.setExpirationTime(user.getExpirationTime().plusDays(30L * order.getPayNumber()));
                 } else {
-                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * order.getPayNumber()));
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
                 }
                 user.setCardDayMaxNumber(product.getMonthlyNumber());
                 user.setType(1);
             }
             if (product.getType() == 2) {
+                //季卡
+                if(null == user.getExpirationTime()){   //未开通
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {   //未过期
+                    user.setExpirationTime(user.getExpirationTime().plusDays(30L * 3 * order.getPayNumber()));
+                } else {    //已过期
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                }
+                user.setCardDayMaxNumber(product.getMonthlyNumber());
+                user.setType(1);
+            }
+            if (product.getType() == 3) {
+                //年卡
+                if(null == user.getExpirationTime()){
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 12 * order.getPayNumber()));
+                } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
+                    user.setExpirationTime(user.getExpirationTime().plusDays(30L * 12 * order.getPayNumber()));
+                } else {
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 12 * order.getPayNumber()));
+                }
+                user.setCardDayMaxNumber(product.getMonthlyNumber());
+                user.setType(1);
+            }
+            if (product.getType() == 4) {
+                //终身
+                if(null == user.getExpirationTime()){
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
+                    user.setExpirationTime(user.getExpirationTime().plusDays(30L * 99999 * order.getPayNumber()));
+                } else {
+                    user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                }
+                user.setCardDayMaxNumber(product.getMonthlyNumber());
+                user.setType(1);
+            }
+            if (product.getType() == 5) {
                 //加油包
                 RefuelingKit kit = new RefuelingKit();
                 kit.setProductId(product.getId());
@@ -254,7 +293,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
                 productService.saveOrUpdate(product);
             }
         }
-        return "success";
+        return new PayCallBack("SUCCESS","处理完成");
     }
 
     @Override
