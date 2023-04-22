@@ -3,14 +3,10 @@ package com.cn.app.chatgptbot.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.model.Order;
-import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.ali.req.AliPayCreateReq;
-import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
-import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.*;
-import com.cn.app.chatgptbot.model.res.CreateOrderRes;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
+import com.cn.app.chatgptbot.model.wx.PayCallBack;
+import com.cn.app.chatgptbot.model.wx.PrepayResult;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,13 +19,13 @@ import javax.servlet.http.HttpServletRequest;
 public interface IOrderService extends IService<Order> {
 
 
-    B<CreateOrderRes> createOrder(CreateOrderReq req);
+    B<PrepayResult> createOrder(CreateOrderReq req);
 
-    B<CreateOrderRes> payOrder(PayOrderReq req);
+    B<PrepayResult> payOrder(PayOrderReq req);
 
     B returnUrl(ReturnUrlReq req);
 
-    String callback(OrderCallBackReq req);
+    PayCallBack callback(OrderCallBackReq req);
 
     B query(QueryOrderReq req);
 

@@ -8,11 +8,19 @@ public enum RedisKey {
     /**
      * 阿里云短信配置
      */
-    AILYUN_SMS_CONFIG(1, "aliyun.config.sms"),
+    AILYUN_SMS_CONFIG(3, "aliyun.config.sms"),
+    /**
+     * 微信支付配置
+     */
+    WX_PAY(2, "wx.pay"),
+    /**
+     * 微信公众号配置
+     */
+    WX_GZH(1, "wx.gzh"),
     /**
      * 白辰易支付配置
      */
-    PAY_CONFIG(1, "payConfig");
+    PAY_CONFIG(0, "payConfig");
 
     private Integer value;
     private String name;

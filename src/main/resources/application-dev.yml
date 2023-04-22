@@ -30,3 +30,9 @@ spring:
         max-active: 1000
         max-wait: -1
     timeout: 100s
+
+wx:
+  pay:
+    #证书
+    #privateKey:
+    privateKey:

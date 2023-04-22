@@ -9,6 +9,7 @@ import com.cn.app.chatgptbot.model.req.RegisterReq;
 import com.cn.app.chatgptbot.model.req.SMSLogReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
+import com.cn.app.chatgptbot.model.wx.WxUserInfo;
 
 /**
  * 用户表(User)表服务接口
@@ -52,6 +53,13 @@ public interface IUserService extends IService<User> {
     B delete(BaseDeleteEntity params);
 
     B register(RegisterReq req);
+
+    /**
+     * 注册(微信授权用户)
+     * @param wxUserInfo
+     * @return
+     */
+    User register(WxUserInfo wxUserInfo);
 
     B sendSMS(SMSLogReq req);
 

@@ -33,7 +33,7 @@ public class UserInfoRes implements Serializable {
     @ApiModelProperty(value = "剩余次数", position = 12)
     private Integer remainingTimes;
 
-    @ApiModelProperty(value = "月卡今日剩余次数", position = 12)
+    @ApiModelProperty(value = "今日剩余次数", position = 12)
     private Integer dayRemainingTimes;
 
     @ApiModelProperty(value = "加油包信息", position = 12)

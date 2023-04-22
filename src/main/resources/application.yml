@@ -4,7 +4,7 @@ server:
     uri-encoding: utf-8
 spring:
   profiles:
-    active: prod
+    active: dev
   mvc:
     static-path-pattern: /static/**
   resources:
@@ -30,20 +30,52 @@ knife4j:
     enable: true
     username: GPT-WEB-JAVA
     password: GPT-WEB-JAVA
+
 #代理ip
 broker:
   ip:
   port:
 # 微信小程序配置
 we-chat:
-  #直连商户号
-  mchid:
-  #appid
+  #小程序 ID
   appId: ''
   #小程序 密钥
   secret: ''
 # bing机器人请求路径
 bingUrl: "http://XXXXXXXXX:3000/bing"
+
+wx:
+  pay:
+    #直连商户号
+    mchId:
+    #appid
+    appId:
+    #APIv3密钥
+    secret:
+    #支付Url
+    payUrl: https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi
+    #支付回调通知地址
+    notifyUrl:
+
+  #公众号配置
+  gzh:
+    #公众号AppID
+    appId:
+    #公众号AppSecret
+    appSecret:
+    #获取用户code的回调地址
+    redirectUri: https://aihardcore.cn/#/
+    #获取用户code的url
+    codeUrl: https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx.gzh.appId}&redirect_uri={REDIRECT_URI}&response_type=code&scope={SCOPE}&state=STATE#wechat_redirect
+    #获取access_token的url
+    accessTokenUrl: https://api.weixin.qq.com/sns/oauth2/access_token?appid=${wx.gzh.appId}&secret=SECRET&code={CODE}&grant_type=authorization_code
+    #刷新access_token的url
+    refreshAccessTokenUrl: https://api.weixin.qq.com/sns/oauth2/refresh_token?appid={${wx.gzh.appId}&grant_type=refresh_token&refresh_token={REFRESH_TOKEN}
+    #获取用户信息的url
+    userinfoUrl: https://api.weixin.qq.com/sns/userinfo?access_token={ACCESS_TOKEN}&openid={OPENID}&lang=zh_CN
+
+
+
 
 
 
@@ -54,7 +86,7 @@ aliyun:
     #AccessKey Secret
     accessKeySecret:
     #api接口地址
-    api:
+    api: dysmsapi.aliyuncs.com
     #短信模板CODE
     templateCode:
     #短信签名名称

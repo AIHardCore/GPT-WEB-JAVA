@@ -19,6 +19,7 @@ import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
 import com.cn.app.chatgptbot.model.req.SMSLogReq;
 import com.cn.app.chatgptbot.model.res.*;
+import com.cn.app.chatgptbot.model.wx.WxUserInfo;
 import com.cn.app.chatgptbot.service.IAnnouncementService;
 import com.cn.app.chatgptbot.service.ISMSLogService;
 import com.cn.app.chatgptbot.service.IUseLogService;
@@ -153,9 +154,33 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         smsLogService.updateById(smsLog);
         user.setCreateTime(LocalDateTime.now());
         user.setOperateTime(LocalDateTime.now());
+        user.setCardDayMaxNumber(5);
         user.setRemainingTimes(10);
         this.save(user);
         return B.okBuild();
+    }
+
+    /**
+     * 注册(微信授权用户)
+     *
+     * @param wxUserInfo
+     * @return
+     */
+    @Override
+    public User register(WxUserInfo wxUserInfo) {
+        User user = User.builder()
+                .name(wxUserInfo.getNickname())
+                .openId(wxUserInfo.getOpenid())
+                .lastLoginTime(LocalDateTime.now())
+                .lastLoginTime(LocalDateTime.now())
+                .type(0)
+                .cardDayMaxNumber(5)
+                .remainingTimes(10)
+                .build();
+        user.setCreateTime(LocalDateTime.now());
+        user.setOperateTime(LocalDateTime.now());
+        this.save(user);
+        return user;
     }
 
     @Override
@@ -167,14 +192,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
     public B<UserInfoRes> home() {
         UserInfoRes userInfo = this.baseMapper.getUserInfo(JwtUtil.getUserId());
         if(userInfo.getType() == -1){
-            userInfo.setType(2);
+            userInfo.setType(-1);
         }
         if(null == userInfo.getExpirationTime() || LocalDateTime.now().compareTo(userInfo.getExpirationTime()) > 0){
-            userInfo.setType(0);
-        }
-        if(null != userInfo.getExpirationTime() &&  LocalDateTime.now().compareTo(userInfo.getExpirationTime()) <= 0){
             userInfo.setType(1);
         }
+        /*if(null != userInfo.getExpirationTime() &&  LocalDateTime.now().compareTo(userInfo.getExpirationTime()) <= 0){
+            userInfo.setType(1);
+        }*/
         List<UserRefuelingKitRes> userRefuelingKitRes = refuelingKitDao.selectUserKit(JwtUtil.getUserId());
         userRefuelingKitRes.forEach( u ->{
             if(u.getExpirationDateTime().compareTo(LocalDateTime.now()) < 0){
@@ -184,6 +209,9 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
             }
         });
         userInfo.setKitList(userRefuelingKitRes);
+        //是否已达今日已达上线
+        Integer dayUseNumber = useLogService.getDayUseNumber();
+        userInfo.setDayRemainingTimes(userInfo.getDayRemainingTimes()-dayUseNumber);
         List<Announcement> list = announcementService.lambdaQuery().select(Announcement::getContent).orderByDesc(Announcement::getSort).last("limit 1").list();
         userInfo.setContent((null != list && list.size() > 0) ? list.get(0).getContent() : "暂无通知公告");
         List<UseLog> useLogList = useLogService.findLogByConversationId(JwtUtil.getUserId());

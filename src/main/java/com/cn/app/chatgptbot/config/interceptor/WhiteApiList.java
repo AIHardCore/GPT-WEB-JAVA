@@ -1,8 +1,7 @@
 package com.cn.app.chatgptbot.config.interceptor;
 
-import org.springframework.util.DigestUtils;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shenshipeng
@@ -13,6 +12,7 @@ public class WhiteApiList {
     static {
 
         //登录
+        list.add("/wx/gzhInfo");
         list.add("/user/token/login");
         list.add("/user/token/admin/login");
         //注册
