@@ -4,7 +4,7 @@ server:
     uri-encoding: utf-8
 spring:
   profiles:
-    active: dev
+    active: prod
   mvc:
     static-path-pattern: /static/**
   resources:
@@ -36,9 +36,28 @@ broker:
   port:
 # 微信小程序配置
 we-chat:
-  #小程序 ID
+  #直连商户号
+  mchid:
+  #appid
   appId: ''
   #小程序 密钥
   secret: ''
 # bing机器人请求路径
 bingUrl: "http://XXXXXXXXX:3000/bing"
+
+
+
+aliyun:
+  sms:
+    #AccessKey Id
+    accessKeyId:
+    #AccessKey Secret
+    accessKeySecret:
+    #api接口地址
+    api:
+    #短信模板CODE
+    templateCode:
+    #短信签名名称
+    signName:
+    #服务地址
+    regionID:

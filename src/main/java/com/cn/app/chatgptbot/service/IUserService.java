@@ -6,10 +6,9 @@ import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
+import com.cn.app.chatgptbot.model.req.SMSLogReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * 用户表(User)表服务接口
@@ -53,6 +52,8 @@ public interface IUserService extends IService<User> {
     B delete(BaseDeleteEntity params);
 
     B register(RegisterReq req);
+
+    B sendSMS(SMSLogReq req);
 
     B<UserInfoRes> home();
 

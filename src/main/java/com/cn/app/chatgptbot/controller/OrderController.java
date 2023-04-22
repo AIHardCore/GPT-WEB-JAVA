@@ -51,7 +51,7 @@ public class OrderController {
     }
 
 
-    @RequestMapping(value = "/return/url", method = RequestMethod.POST)
+    @RequestMapping(value = "/return/url", method = RequestMethod.GET)
     @ApiOperation(value = "支付订单查询")
     public B returnUrl(@Validated @RequestBody ReturnUrlReq req) {
         return orderService.returnUrl(req);
@@ -60,6 +60,11 @@ public class OrderController {
     @RequestMapping(value = "/callback", method = RequestMethod.GET)
     @ApiOperation(value = "支付回调")
     public String callback(OrderCallBackReq req) {
+        return orderService.callback(req);
+    }
+    @RequestMapping(value = "/order/callback/order/callback", method = RequestMethod.GET)
+    @ApiOperation(value = "支付回调")
+    public String callback1(OrderCallBackReq req) {
         return orderService.callback(req);
     }
 

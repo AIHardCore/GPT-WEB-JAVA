@@ -9,6 +9,7 @@ import com.cn.app.chatgptbot.constant.CommonConst;
 import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.UserLogin;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
+import com.cn.app.chatgptbot.model.req.SMSLogReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
 import com.cn.app.chatgptbot.service.IUserService;
@@ -46,7 +47,7 @@ public class UserTokenController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ApiOperation(value = "用户登录")
-    @AvoidRepeatRequest(intervalTime = 20 ,msg = "请勿短时间连续登录")
+    @AvoidRepeatRequest(intervalTime = 10 ,msg = "请勿短时间连续登录")
     public B<JSONObject> userLogin(@Validated @RequestBody UserLogin userLogin) {
         List<User> list = userService.lambdaQuery()
                 .eq(User::getMobile, userLogin.getMobile())
@@ -73,11 +74,19 @@ public class UserTokenController {
         return B.build(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), jsonObject);
 
     }
+
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ApiOperation(value = "注册")
     @AvoidRepeatRequest(intervalTime = 20, msg = "请勿短时间内重复注册")
     public B register(@Validated @RequestBody RegisterReq req) {
         return userService.register(req);
+    }
+
+    @RequestMapping(value = "/smsCode", method = RequestMethod.POST)
+    @ApiOperation(value = "发送注册验证码")
+    @AvoidRepeatRequest(intervalTime = 60, msg = "请勿短时间内重复发送")
+    public B sendSMS(@Validated @RequestBody SMSLogReq req) {
+        return userService.sendSMS(req);
     }
 
     @RequestMapping(value = "/home", method = RequestMethod.POST)

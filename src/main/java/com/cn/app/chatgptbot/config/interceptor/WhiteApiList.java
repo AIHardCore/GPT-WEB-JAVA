@@ -17,6 +17,7 @@ public class WhiteApiList {
         list.add("/user/token/admin/login");
         //注册
         list.add("/user/token/register");
+        list.add("/user/token/smsCode");
         //支付回调
         list.add("/order/callback");
         list.add("/order/ali/callBack");

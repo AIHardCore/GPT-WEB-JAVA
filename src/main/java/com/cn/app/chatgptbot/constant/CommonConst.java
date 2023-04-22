@@ -29,4 +29,9 @@ public class CommonConst {
      */
     public static final String OPEN_AI_URL = "https://api.openai.com/";
 
+    /**
+     * OK
+     */
+    public static final String OK = "OK";
+
 }
