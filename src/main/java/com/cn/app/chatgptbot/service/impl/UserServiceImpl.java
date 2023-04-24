@@ -209,9 +209,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
             }
         });
         userInfo.setKitList(userRefuelingKitRes);
-        //是否已达今日已达上线
-        Integer dayUseNumber = useLogService.getDayUseNumber();
-        userInfo.setDayRemainingTimes(userInfo.getDayRemainingTimes()-dayUseNumber);
         List<Announcement> list = announcementService.lambdaQuery().select(Announcement::getContent).orderByDesc(Announcement::getSort).last("limit 1").list();
         userInfo.setContent((null != list && list.size() > 0) ? list.get(0).getContent() : "暂无通知公告");
         List<UseLog> useLogList = useLogService.findLogByConversationId(JwtUtil.getUserId());

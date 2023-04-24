@@ -59,8 +59,7 @@ public class CheckService {
         useLog.setGptKey(mainKey);
         useLog.setUserId(userId);
         User user = userService.getById(userId);
-        B<UserInfoRes> userInfo = userService.getType(userId);
-        Integer type = userInfo.getData().getType();
+        Integer type = user.getType();
         if (type != -1){
             if(type == 1){
                 //判断剩余次数
@@ -69,7 +68,7 @@ public class CheckService {
                     return Result.error("剩余次数不足,请充值");
                 }
                 //是否已达今日已达上线
-                Integer dayUseNumber = useLogService.getDayUseNumber();
+                Integer dayUseNumber = useLogService.getDayUseNumber(userId);
                 if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
                     return Result.error("当日已超过最大访问次数");
                 }
@@ -99,7 +98,7 @@ public class CheckService {
                         user.setRemainingTimes(user.getRemainingTimes() - 1);
                     }else {
                         //是否已达今日已达上线
-                        Integer dayUseNumber = useLogService.getDayUseNumber();
+                        Integer dayUseNumber = useLogService.getDayUseNumber(userId);
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("当日已超过最大访问次数");

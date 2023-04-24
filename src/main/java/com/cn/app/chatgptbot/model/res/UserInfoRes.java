@@ -24,7 +24,7 @@ public class UserInfoRes implements Serializable {
 
     @ApiModelProperty(value = "用户名")
     private String name;
-    @ApiModelProperty(value = "0 普通用户 1 月卡用户 2 管理员")
+    @ApiModelProperty(value = "类型 1 次数用户 2 月卡用户 3 季卡用户 4 年卡用户 5 终身用户 -1 管理员")
     private Integer type;
 
     @ApiModelProperty(value = "月卡到期日期", position = 11)

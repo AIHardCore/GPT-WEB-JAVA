@@ -141,7 +141,6 @@ public class ChatWebSocketServer {
         BeanUtil.copyProperties(data,this.useLog);
         log.info(userId + "--" + chatMessage.getContent());
         // 记录日志
-        this.useLog.setCreateTime(LocalDateTime.now());
         this.useLog.setQuestion(chatMessage.getContent());
         this.useLog.setConversationId(myChatMessage.getConversationId());
         this.useLog.setSendType(1);

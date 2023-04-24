@@ -27,6 +27,8 @@ public interface IUseLogService extends IService<UseLog> {
 
     Integer getDayUseNumber();
 
+    Integer getDayUseNumber(Long userId);
+
     B queryPage(BasePageHelper basePageHelper);
 
     B updateLog(UpdateLogReq req);

@@ -43,6 +43,11 @@ public class UseLogServiceImpl extends ServiceImpl<UseLogDao, UseLog> implements
     }
 
     @Override
+    public Integer getDayUseNumber(Long userId) {
+        return this.baseMapper.getDayUseNumber(userId);
+    }
+
+    @Override
     public B queryPage(BasePageHelper basePageHelper) {
         JSONObject jsonObject = new JSONObject();
         Page<UseLog> page = new Page<>(basePageHelper.getPageNumber(),basePageHelper.getPageSize());
