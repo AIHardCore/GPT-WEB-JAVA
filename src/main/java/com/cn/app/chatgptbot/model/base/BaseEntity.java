@@ -14,6 +14,7 @@ public class BaseEntity implements Serializable {
      * 编号
      */
     @ApiModelProperty(value = "主键(修改传)", position = 1)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

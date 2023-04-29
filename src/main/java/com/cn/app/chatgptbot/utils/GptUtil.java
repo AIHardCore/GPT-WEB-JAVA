@@ -85,7 +85,7 @@ public final class GptUtil {
     public void init() {
         // traverse the insert
         List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getState,0).orderByDesc(GptKey::getSort).list();
-        gptKeyList.stream().map(GptKey::getKey).collect(Collectors.toList()).forEach(GptUtil::add);
+        gptKeyList.stream().map(GptKey::getGptKey).collect(Collectors.toList()).forEach(GptUtil::add);
         final Collection<String> allKey = getAllKey();
         final List<String> list = allKey.stream().collect(Collectors.toList());
         // get the first one

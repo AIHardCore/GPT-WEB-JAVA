@@ -49,7 +49,7 @@ public class CheckService {
             //session.getBasicRemote().sendText("请先登录");
             return Result.error("请先登录");
         }
-        List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getKey, mainKey).last("limit 1").list();
+        List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getGptKey, mainKey).last("limit 1").list();
         if(null == gptKeyList || gptKeyList.size() == 0){
             //session.getBasicRemote().sendText("Key 异常 请稍后重试");
             return Result.error("Key 异常 请稍后重试");
@@ -82,21 +82,21 @@ public class CheckService {
                     useLog.setUseType(1);
                 }else {
                     //判断套餐是否到期
-                    if(user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
+                    if(user.getExpirationTime() != null && user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
                         //次数用户 查询用户次数
                         if(user.getRemainingTimes() < 1){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("剩余次数不足,请充值");
                         }
                         //是否已达今日已达上线
-                        Integer dayUseNumber = useLogService.getDayUseNumber();
+                        Integer dayUseNumber = useLogService.getDayUseNumber(userId);
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("当日已超过最大访问次数");
                         }
                         useLog.setUseType(1);
                         user.setRemainingTimes(user.getRemainingTimes() - 1);
-                    }else {
+                    }else { //套餐到期消耗使用次数
                         //是否已达今日已达上线
                         Integer dayUseNumber = useLogService.getDayUseNumber(userId);
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){

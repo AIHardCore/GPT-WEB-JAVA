@@ -9,8 +9,8 @@ import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cn.app.chatgptbot.base.B;
+import com.cn.app.chatgptbot.base.PayWay;
 import com.cn.app.chatgptbot.config.ali.AliPayConfig;
-import com.cn.app.chatgptbot.constant.RedisKey;
 import com.cn.app.chatgptbot.dao.OrderDao;
 import com.cn.app.chatgptbot.exception.CustomException;
 import com.cn.app.chatgptbot.model.*;
@@ -22,14 +22,12 @@ import com.cn.app.chatgptbot.model.res.QueryOrderRes;
 import com.cn.app.chatgptbot.model.res.ReturnUrlRes;
 import com.cn.app.chatgptbot.model.wx.PayCallBack;
 import com.cn.app.chatgptbot.model.wx.PrepayResult;
-import com.cn.app.chatgptbot.model.wx.WxPay;
 import com.cn.app.chatgptbot.service.*;
 import com.cn.app.chatgptbot.utils.JwtUtil;
 import com.cn.app.chatgptbot.utils.PayUtil;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import com.cn.app.chatgptbot.utils.RedisUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -209,7 +207,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         if(order.getState() == 1){
             return new PayCallBack("SUCCESS","处理完成");
         }
-        order.setPayType("wxpay"); //暂时只有微信支付
+        order.setPayType(PayWay.WX_PAY); //暂时只有微信支付
         order.setTradeNo(order.getTradeNo());
         BigDecimal money = new BigDecimal(req.getResource().getAmount().getTotal());
         if (money.compareTo(order.getPrice()) != 0) {
@@ -319,7 +317,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         Order order = BeanUtil.copyProperties(req, Order.class);
         order.setUserId(JwtUtil.getUserId());
         order.setPrice(product.getPrice().multiply(new BigDecimal(req.getPayNumber())));
-        order.setPayType("支付宝");
+        order.setPayType(PayWay.ALI_PAY);
         order.setCreateTime(LocalDateTime.now());
         this.save(order);
         // 生成系统订单号
