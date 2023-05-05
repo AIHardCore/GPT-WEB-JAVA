@@ -1,5 +1,6 @@
 package com.cn.app.chatgptbot.service.blog.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.blog.Article;
@@ -44,7 +45,7 @@ public interface ArticleService extends IService<Article> {
     /*
         分页查询
      */
-    List<Article> selectByPage(BasePageHelper basePageHelper, Boolean flag);
+    Page<Article> selectByPage(BasePageHelper basePageHelper, Boolean flag);
 
     /*
          文章总条数

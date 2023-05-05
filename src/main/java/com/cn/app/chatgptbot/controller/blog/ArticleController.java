@@ -1,5 +1,6 @@
 package com.cn.app.chatgptbot.controller.blog;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cn.app.chatgptbot.controller.blog.result.ArticleResult;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.blog.Article;
@@ -106,10 +107,10 @@ public class ArticleController {
         BasePageHelper basePageHelper = new BasePageHelper();
         basePageHelper.setPageSize(pageSize);
         basePageHelper.setPageNumber(currentPage);
-        int total = 1;
-        List<Article> articles = articleService.
+        Page<Article> articles = articleService.
                 selectByPage(basePageHelper, flag);
-        Integer code = articles != null ? Code.SELECT_SUC : Code.SELECT_ERR;
+        long total = articles.getTotal();
+        Integer code = total > 0 ? Code.SELECT_SUC : Code.SELECT_ERR;
         String msg = articles != null ? "文章都在这里啦" : "一篇文章也没有啦";
         return new ArticleResult(code, msg, articles, total);
     }

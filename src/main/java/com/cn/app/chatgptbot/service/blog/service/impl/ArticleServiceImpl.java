@@ -70,11 +70,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleDao, Article> impleme
         分页查询
      */
     @Override
-    public List<Article> selectByPage(BasePageHelper basePageHelper, Boolean flag) {
+    public Page<Article> selectByPage(BasePageHelper basePageHelper, Boolean flag) {
         Page<Article> page = new Page<>(basePageHelper.getPageNumber(),basePageHelper.getPageSize());
         QueryWrapper<Article> queryWrapper = new QueryWrapper();
         Page<Article> userPage = baseMapper.selectPage(page, queryWrapper);
-        return userPage.getRecords();
+        return userPage;
     }
 
     @Override

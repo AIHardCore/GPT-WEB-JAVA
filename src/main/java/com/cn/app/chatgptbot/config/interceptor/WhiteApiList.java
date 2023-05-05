@@ -28,7 +28,7 @@ public class WhiteApiList {
         list.add("/doc.html");
         list.add("/webjars/**");
 
-        list.add("//blog/**");
+        list.add("/blog/**");
 
     }
 
