@@ -27,6 +27,9 @@ public class WhiteApiList {
         list.add("/swagger-resources");
         list.add("/doc.html");
         list.add("/webjars/**");
+
+        list.add("//blog/**");
+
     }
 
 }

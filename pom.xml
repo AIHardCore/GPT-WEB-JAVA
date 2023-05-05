@@ -151,6 +151,18 @@
 			<artifactId>alibabacloud-dysmsapi20170525</artifactId>
 			<version>2.0.23</version>
 		</dependency>
+		<!-- 七牛云 -->
+		<dependency>
+			<groupId>com.qiniu</groupId>
+			<artifactId>qiniu-java-sdk</artifactId>
+			<version>7.2.28</version>
+		</dependency>
+		<!-- jasypt：密码加密 -->
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt-spring3</artifactId>
+			<version>1.9.3</version>
+		</dependency>
 	</dependencies>
 
 
