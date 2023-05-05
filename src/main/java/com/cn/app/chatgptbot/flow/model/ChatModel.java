@@ -6,6 +6,7 @@ import com.cn.app.chatgptbot.flow.chat.ChatResponseParameter;
 import com.cn.app.chatgptbot.flow.chat.Choice;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.apache.hc.client5.http.async.methods.AbstractCharResponseConsumer;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
@@ -25,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
 @Component
+@Log4j2
 public class ChatModel {
 
     /**
@@ -168,6 +170,7 @@ public class ChatModel {
                     for (Choice choice : responseParameter.getChoices()) {
                         String content = choice.getDelta().getContent();
                         if (content != null && !"".equals(content)) {
+                            log.info("回答：{}",content);
                             // 保存结果
                             sb.append(content);
                             // 将结果使用WebSocket传送过去

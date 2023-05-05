@@ -123,7 +123,7 @@ public class ChatWebSocketServer {
 
 
         MyChatMessage myChatMessage = JSON.parseObject(message, MyChatMessage.class);
-        if (myChatMessage.getConversationId() == null){
+        if (StringUtils.isEmpty(myChatMessage.getConversationId())){
             myChatMessage.setConversationId(IdUtil.simpleUUID());
         }
 
