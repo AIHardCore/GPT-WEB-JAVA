@@ -70,7 +70,7 @@ public final class WebClientUtil {
 
         final String block = WebClient.builder()
                 .clientConnector(connector)
-                .baseUrl("https://api.openai.com/v1/")
+                .baseUrl("https://api.openai.com")
                 .defaultHeader("Authorization", "Bearer " + openKey)
                 .build()
                 .post()

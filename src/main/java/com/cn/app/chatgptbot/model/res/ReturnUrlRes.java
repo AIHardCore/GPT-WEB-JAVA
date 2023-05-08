@@ -1,5 +1,6 @@
 package com.cn.app.chatgptbot.model.res;
 
+import com.cn.app.chatgptbot.base.PayWay;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.models.auth.In;
 import javax.validation.constraints.NotNull;
@@ -36,7 +37,7 @@ public class ReturnUrlRes  implements Serializable {
     private String out_trade_no;
 
     @ApiModelProperty(value = "支付方式")
-    private String type;
+    private PayWay type;
 
     @ApiModelProperty(value = "商户ID")
     private Integer pid;

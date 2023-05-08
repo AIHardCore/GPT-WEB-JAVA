@@ -34,6 +34,11 @@ public class UseLogServiceImpl extends ServiceImpl<UseLogDao, UseLog> implements
     }
 
     @Override
+    public Integer getDayUseNumber(Long userId) {
+        return this.baseMapper.getDayUseNumber(userId);
+    }
+
+    @Override
     public B updateLog(UpdateLogReq req) {
         UseLog useLog = this.getById(req.getLogId());
         if(null == useLog){

@@ -1,7 +1,5 @@
 package com.cn.app.chatgptbot.model.req;
 
-import com.cn.app.chatgptbot.base.PayWay;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NonNull;
@@ -16,11 +14,11 @@ import lombok.NonNull;
  * @Version: v1.0
  */
 @Data
-public class CreateOrderReq {
+public class PayOrderReq {
 
-    @ApiModelProperty(value = "产品id")
+    @ApiModelProperty(value = "订单id")
     @NonNull
-    private Long productId;
+    private Long orderId;
 
     @ApiModelProperty(value = "数量")
     @NonNull
@@ -28,5 +26,5 @@ public class CreateOrderReq {
 
     @ApiModelProperty(value = "支付类型")
     @NonNull
-    private PayWay type;
+    private String type;
 }

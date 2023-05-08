@@ -138,6 +138,19 @@
 			<artifactId>alipay-easysdk</artifactId>
 			<version>2.2.2</version>
 		</dependency>
+		<!--微信支付工具-->
+		<!-- https://mvnrepository.com/artifact/com.github.wechatpay-apiv3/wechatpay-apache-httpclient -->
+		<dependency>
+			<groupId>com.github.wechatpay-apiv3</groupId>
+			<artifactId>wechatpay-apache-httpclient</artifactId>
+			<version>0.4.9</version>
+		</dependency>
+		<!-- jasypt：密码加密 -->
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt-spring3</artifactId>
+			<version>1.9.3</version>
+		</dependency>
 	</dependencies>
 
 

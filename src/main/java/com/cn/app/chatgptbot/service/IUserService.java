@@ -8,6 +8,7 @@ import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
+import com.cn.app.chatgptbot.model.wx.WxUserInfo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -53,6 +54,14 @@ public interface IUserService extends IService<User> {
     B delete(BaseDeleteEntity params);
 
     B register(RegisterReq req);
+
+    /**
+     * 注册(微信授权用户)
+     * @param wxUserInfo
+     * @return
+     */
+    User register(WxUserInfo wxUserInfo);
+
     B<UserInfoRes> home();
 
     B<AdminHomeRes> adminHome();

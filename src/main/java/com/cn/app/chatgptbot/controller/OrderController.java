@@ -4,11 +4,10 @@ import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.model.ali.req.AliPayCreateReq;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
-import com.cn.app.chatgptbot.model.req.CreateOrderReq;
-import com.cn.app.chatgptbot.model.req.OrderCallBackReq;
-import com.cn.app.chatgptbot.model.req.QueryOrderReq;
-import com.cn.app.chatgptbot.model.req.ReturnUrlReq;
+import com.cn.app.chatgptbot.model.req.*;
 import com.cn.app.chatgptbot.model.res.CreateOrderRes;
+import com.cn.app.chatgptbot.model.wx.PayCallBack;
+import com.cn.app.chatgptbot.model.wx.PrepayResult;
 import com.cn.app.chatgptbot.service.IGptKeyService;
 import com.cn.app.chatgptbot.service.IOrderService;
 import io.swagger.annotations.Api;
@@ -43,10 +42,15 @@ public class OrderController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ApiOperation(value = "创建预订单")
-    public B<CreateOrderRes> createOrder(@Validated @RequestBody CreateOrderReq req) {
+    public B<PrepayResult> createOrder(@Validated @RequestBody CreateOrderReq req) {
         return orderService.createOrder(req);
     }
 
+    @RequestMapping(value = "/pay", method = RequestMethod.POST)
+    @ApiOperation(value = "支付订单")
+    public B<PrepayResult> payOrder(@Validated @RequestBody PayOrderReq req) {
+        return orderService.payOrder(req);
+    }
 
     @RequestMapping(value = "/return/url", method = RequestMethod.POST)
     @ApiOperation(value = "支付订单查询")
@@ -56,7 +60,7 @@ public class OrderController {
 
     @RequestMapping(value = "/callback", method = RequestMethod.GET)
     @ApiOperation(value = "支付回调")
-    public String callback(OrderCallBackReq req) {
+    public PayCallBack callback(OrderCallBackReq req) {
         return orderService.callback(req);
     }
 

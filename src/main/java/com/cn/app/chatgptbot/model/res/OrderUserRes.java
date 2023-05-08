@@ -1,5 +1,6 @@
 package com.cn.app.chatgptbot.model.res;
 
+import com.cn.app.chatgptbot.base.PayWay;
 import com.cn.app.chatgptbot.model.Order;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -33,7 +34,7 @@ public class OrderUserRes extends Order implements Serializable {
 
 
     @ApiModelProperty(value = "支付方式 wxpay、alipay、qqpay", position = 10)
-    private String payType;
+    private PayWay payType;
 
 
     @ApiModelProperty(value = "购买数量", position = 11)

@@ -1,6 +1,7 @@
 package com.cn.app.chatgptbot.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.cn.app.chatgptbot.base.PayWay;
 import com.cn.app.chatgptbot.model.base.BaseEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -48,7 +49,7 @@ public class Order extends BaseEntity implements Serializable {
      * 支付方式 wxpay、alipay、qqpay
      */
     @ApiModelProperty(value = "支付方式 wxpay、alipay、qqpay", position = 10)
-    private String payType;
+    private PayWay payType;
 
     /**
      * 购买数量

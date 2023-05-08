@@ -1,5 +1,6 @@
 package com.cn.app.chatgptbot.model.res;
 
+import com.cn.app.chatgptbot.base.PayWay;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NonNull;
@@ -37,7 +38,7 @@ public class CreateOrderRes {
     private String signType = "MD5";
 
     @ApiModelProperty(value = "支付方式")
-    private String type ;
+    private PayWay type ;
 
     @ApiModelProperty(value = "签名字符串")
     private String sign ;

@@ -17,6 +17,7 @@ import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
 import com.cn.app.chatgptbot.model.res.*;
+import com.cn.app.chatgptbot.model.wx.WxUserInfo;
 import com.cn.app.chatgptbot.service.IAnnouncementService;
 import com.cn.app.chatgptbot.service.IUseLogService;
 import com.cn.app.chatgptbot.service.IUserService;
@@ -145,14 +146,37 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         return B.okBuild();
     }
 
+    /**
+     * 注册(微信授权用户)
+     *
+     * @param wxUserInfo
+     * @return
+     */
+    @Override
+    public User register(WxUserInfo wxUserInfo) {
+        User user = User.builder()
+                .name(wxUserInfo.getNickname())
+                .openId(wxUserInfo.getOpenid())
+                .lastLoginTime(LocalDateTime.now())
+                .lastLoginTime(LocalDateTime.now())
+                .headImgUrl(wxUserInfo.getHeadimgurl())
+                .cardDayMaxNumber(5)
+                .remainingTimes(10)
+                .build();
+        user.setCreateTime(LocalDateTime.now());
+        user.setOperateTime(LocalDateTime.now());
+        this.save(user);
+        return user;
+    }
+
     @Override
     public B<UserInfoRes> home() {
         UserInfoRes userInfo = this.baseMapper.getUserInfo(JwtUtil.getUserId());
         if(userInfo.getType() == -1){
-            userInfo.setType(2);
+            userInfo.setType(-1);
         }
         if(null == userInfo.getExpirationTime() || LocalDateTime.now().compareTo(userInfo.getExpirationTime()) > 0){
-            userInfo.setType(0);
+            userInfo.setType(1);
         }
         if(null != userInfo.getExpirationTime() &&  LocalDateTime.now().compareTo(userInfo.getExpirationTime()) <= 0){
             userInfo.setType(1);
@@ -196,14 +220,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
     public B<UserInfoRes> getType() {
         UserInfoRes userInfo = this.baseMapper.getUserInfo(JwtUtil.getUserId());
         if(userInfo.getType() == -1){
-            userInfo.setType(2);
+            userInfo.setType(4);
         }
         if(null == userInfo.getExpirationTime() || LocalDateTime.now().compareTo(userInfo.getExpirationTime()) > 0){
-            userInfo.setType(0);
+            userInfo.setType(1);
         }else if(LocalDateTime.now().compareTo(userInfo.getExpirationTime()) <= 0){
-            userInfo.setType(2);
+            //userInfo.setType(2);
         }else {
-            userInfo.setType(0);
+            userInfo.setType(1);
         }
         return B.okBuild(userInfo);
     }
