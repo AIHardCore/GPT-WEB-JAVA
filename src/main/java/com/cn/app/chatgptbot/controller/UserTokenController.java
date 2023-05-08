@@ -11,6 +11,7 @@ import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.UserLogin;
 import com.cn.app.chatgptbot.model.base.WxUserLogin;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
+import com.cn.app.chatgptbot.model.req.UserHomeReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
 import com.cn.app.chatgptbot.model.wx.AccessTokenInfo;
@@ -130,8 +131,8 @@ public class UserTokenController {
 
     @RequestMapping(value = "/home", method = RequestMethod.POST)
     @ApiOperation(value = "首页信息")
-    public B<UserInfoRes> home() {
-        return userService.home();
+    public B<UserInfoRes> home(@Validated @RequestBody UserHomeReq req) {
+        return userService.home(req);
     }
 
     @RequestMapping(value = "/getType", method = RequestMethod.POST)

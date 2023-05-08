@@ -16,6 +16,7 @@ import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
+import com.cn.app.chatgptbot.model.req.UserHomeReq;
 import com.cn.app.chatgptbot.model.res.*;
 import com.cn.app.chatgptbot.model.wx.WxUserInfo;
 import com.cn.app.chatgptbot.service.IAnnouncementService;
@@ -170,7 +171,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
     }
 
     @Override
-    public B<UserInfoRes> home() {
+    public B<UserInfoRes> home(UserHomeReq req) {
         UserInfoRes userInfo = this.baseMapper.getUserInfo(JwtUtil.getUserId());
         if(userInfo.getType() == -1){
             userInfo.setType(-1);
@@ -194,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         userInfo.setContent((null != list && list.size() > 0) ? list.get(0).getContent() : "暂无通知公告");
         List<UseLog> useLogList = useLogService.lambdaQuery()
                 .eq(UseLog::getUserId, JwtUtil.getUserId())
-                .eq(UseLog::getSendType,0)
+                .eq(UseLog::getSendType,req.getSendType())
                 .orderByDesc(UseLog::getId).last("limit 10").list();
         userInfo.setLogList(useLogList);
         return B.okBuild(userInfo);

@@ -6,6 +6,7 @@ import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
 import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.RegisterReq;
+import com.cn.app.chatgptbot.model.req.UserHomeReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
 import com.cn.app.chatgptbot.model.wx.WxUserInfo;
@@ -62,7 +63,7 @@ public interface IUserService extends IService<User> {
      */
     User register(WxUserInfo wxUserInfo);
 
-    B<UserInfoRes> home();
+    B<UserInfoRes> home(UserHomeReq req);
 
     B<AdminHomeRes> adminHome();
     B<UserInfoRes> getType();
