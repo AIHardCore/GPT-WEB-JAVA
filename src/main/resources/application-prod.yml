@@ -29,3 +29,9 @@ spring:
         min-idle: 1
         max-active: 1000
         max-wait: -1
+
+wx:
+  pay:
+    #证书
+    #privateKey:
+    privateKey:
