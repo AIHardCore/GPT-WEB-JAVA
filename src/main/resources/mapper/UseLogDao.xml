@@ -12,7 +12,8 @@
             a.id,
             a.conversation_id,
             a.question,
-            a.answer
+            a.answer,
+            a.use_value
         FROM
             use_log a,
             ( SELECT max( id ) AS mid, user_id, max( create_time ) create_time FROM use_log WHERE user_id = #{userId} GROUP BY conversation_id ) b

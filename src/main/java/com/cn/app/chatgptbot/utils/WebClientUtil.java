@@ -79,6 +79,7 @@ public final class WebClientUtil {
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), response -> response.bodyToMono(String.class)
                         .flatMap(errorBody -> {
+                            log.info(errorBody);
                             JSONObject errorObj = JSONObject.parseObject(errorBody);
                             final String errorCode = errorObj.getString("error");
                             final JSONObject jsonObject = JSONObject.parseObject(errorCode);

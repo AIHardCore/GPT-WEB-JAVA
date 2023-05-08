@@ -92,6 +92,8 @@ public class ChatModel {
             protected void start(HttpResponse response, ContentType contentType) throws HttpException, IOException {
                 setCharset(charset);
                 this.response = response;
+                //开始回答
+                session.getBasicRemote().sendText("&BEGIN&");
             }
 
             @Override
