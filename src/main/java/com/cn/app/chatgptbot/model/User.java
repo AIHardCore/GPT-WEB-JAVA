@@ -44,6 +44,12 @@ public class User extends BaseEntity implements Serializable {
      */
     @ApiModelProperty(value = "密码", position = 8)
     private String password;
+
+    /**
+     * 头像
+     */
+    @ApiModelProperty(value = "头像", position = 8)
+    private String headImgUrl;
     /**
      * 上次登录时间
      */

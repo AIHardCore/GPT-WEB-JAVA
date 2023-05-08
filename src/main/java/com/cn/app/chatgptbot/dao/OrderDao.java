@@ -3,7 +3,6 @@ package com.cn.app.chatgptbot.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cn.app.chatgptbot.model.Order;
-import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.req.QueryOrderReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeOrder;
 import com.cn.app.chatgptbot.model.res.AdminHomeOrderPrice;
@@ -21,6 +20,8 @@ public interface OrderDao extends BaseMapper<Order> {
 
 
     Page<QueryOrderRes> queryOrder(Page<QueryOrderRes> page, @Param("req") QueryOrderReq req);
+
+    Order findOrderByTradeNo(@Param("tradeNo")String tradeNo);
 
     List<AdminHomeOrder> queryHomeOrder();
 

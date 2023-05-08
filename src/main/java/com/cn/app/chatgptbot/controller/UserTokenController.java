@@ -1,6 +1,7 @@
 package com.cn.app.chatgptbot.controller;
 
 import cn.hutool.crypto.SecureUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.base.ResultEnum;
@@ -22,6 +23,7 @@ import com.cn.app.chatgptbot.utils.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  * @author
  * @date 2022-03-25 16:00
  */
+@Log4j2
 @RestController
 @RequestMapping("/user/token")
 @RequiredArgsConstructor
@@ -84,22 +87,25 @@ public class UserTokenController {
 
     @RequestMapping(value = "/wxlogin", method = RequestMethod.POST)
     @ApiOperation(value = "用户登录")
-    @AvoidRepeatRequest(intervalTime = 10 ,msg = "请勿短时间连续登录")
-    public B<JSONObject> wxlogin(@Validated @RequestBody WxUserLogin userLogin) {
-        if (StringUtils.isEmpty(userLogin.getCode())){
+    public B<JSONObject> wxlogin(@Validated @RequestBody WxUserLogin wxUserLogin) {
+        if (StringUtils.isEmpty(wxUserLogin.getCode())){
             return B.finalBuild("code为空，授权失败！");
         }
+        log.info("微信登录：{}",wxUserLogin.getCode());
         User user = null;
-        AccessTokenInfo accessTokenInfo = wxService.getAccessTokenInfo(userLogin.getCode());
+        AccessTokenInfo accessTokenInfo = wxService.getAccessTokenInfo(wxUserLogin.getCode());
+        log.info("微信AccessToken：{}", JSON.toJSON(accessTokenInfo));
         List<User> list = userService.lambdaQuery()
                 .eq(User::getOpenId, accessTokenInfo.getOpenid())
                 .ne(User::getType,-1)
                 .list();
         if (list == null || list.size() == 0) {
             WxUserInfo userInfo = wxService.getUserInfo(accessTokenInfo.getAccessToken(),accessTokenInfo.getOpenid());
+            log.info("微信用户信息：{}", JSON.toJSON(userInfo));
             user = userService.register(userInfo);
         }else {
             user = list.get(0);
+            log.info("用户信息：{}", JSON.toJSON(user));
         }
         JSONObject jsonObject = new JSONObject();
         //生成token
@@ -115,7 +121,6 @@ public class UserTokenController {
         jsonObject.put("lastLoginTime", null == user.getLastLoginTime() ? nweUser.getLastLoginTime() : user.getLastLoginTime());
         userService.updateById(nweUser);
         return B.build(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), jsonObject);
-
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)

@@ -173,7 +173,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
                 .openId(wxUserInfo.getOpenid())
                 .lastLoginTime(LocalDateTime.now())
                 .lastLoginTime(LocalDateTime.now())
-                .type(0)
+                .headImgUrl(wxUserInfo.getHeadimgurl())
                 .cardDayMaxNumber(5)
                 .remainingTimes(10)
                 .build();
@@ -195,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
             userInfo.setType(-1);
         }
         if(null == userInfo.getExpirationTime() || LocalDateTime.now().compareTo(userInfo.getExpirationTime()) > 0){
-            userInfo.setType(0);
+            userInfo.setType(1);
         }
         /*if(null != userInfo.getExpirationTime() &&  LocalDateTime.now().compareTo(userInfo.getExpirationTime()) <= 0){
             userInfo.setType(1);

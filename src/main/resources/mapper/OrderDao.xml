@@ -8,6 +8,7 @@
             t.id,
             p.`name` as productName,
             t.price,
+            t.trade_no,
             t.state,
             t.pay_type,
             t.pay_number,
@@ -49,6 +50,11 @@
         </if>
         order by t.id desc
     </select>
+
+    <select id="findOrderByTradeNo" resultType="com.cn.app.chatgptbot.model.Order">
+        SELECT * FROM t_order t where 1=1 and t.trade_no = #{tradeNo}
+    </select>
+
     <select id="queryHomeOrder" resultType="com.cn.app.chatgptbot.model.res.AdminHomeOrder">
         SELECT
             count( 1 ) AS orderNumber,

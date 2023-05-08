@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class PrepayResult {
+    private String msg;
+    private String code;
     private String appId; // 公众号appid
     private String timeStamp; // String	是	时间戳从1970年1月1日00:00:00至今的秒数,即当前的时间
     private String nonceStr; //	String	是	随机字符串，长度为32个字符以下。

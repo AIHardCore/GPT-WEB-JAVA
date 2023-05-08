@@ -22,6 +22,10 @@ public class WxPay {
      */
     private String mchId;
     /**
+     * 证书序列号
+     */
+    private String serialNumber;
+    /**
      * appid
      */
     private String appId;

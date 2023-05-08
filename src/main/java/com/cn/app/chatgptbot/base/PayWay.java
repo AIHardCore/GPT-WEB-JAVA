@@ -1,5 +1,7 @@
 package com.cn.app.chatgptbot.base;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+
 public enum PayWay {
     //0：微信支付、1：支付宝支付、2：QQ支付
     /**
@@ -15,6 +17,7 @@ public enum PayWay {
      */
     QQ_PAY(2, "QQ支付");
 
+    @EnumValue
     private Integer value;
     private String name;
 

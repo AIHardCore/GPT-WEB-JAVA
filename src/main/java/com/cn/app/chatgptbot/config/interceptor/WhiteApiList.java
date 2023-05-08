@@ -15,6 +15,7 @@ public class WhiteApiList {
         //登录
         list.add("/wx/gzhInfo");
         list.add("/user/token/login");
+        list.add("/user/token/wxlogin");
         list.add("/user/token/admin/login");
         //注册
         list.add("/user/token/register");

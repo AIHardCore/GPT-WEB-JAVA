@@ -51,5 +51,7 @@ public class QueryOrderRes  implements Serializable {
     @ApiModelProperty(value = "手机号", position = 2,hidden=true)
     private String mobile;
 
+    @ApiModelProperty(value = "平台订单号", position = 11)
+    private String tradeNo;
 
 }

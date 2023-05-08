@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -17,7 +18,8 @@ import java.util.List;
  */
 @NoArgsConstructor
 @Data
-public class OrderCallBackReq {
+public class OrderCallBackReq implements Serializable {
+
     @JsonProperty("id")
     private String id;
     @JsonProperty("create_time")
@@ -29,7 +31,23 @@ public class OrderCallBackReq {
     @JsonProperty("summary")
     private String summary;
     @JsonProperty("resource")
-    private ResourceDTO resource;
+    private Resource resource;
+    private ResourceDTO resourceDTO;
+
+    @NoArgsConstructor
+    @Data
+    public static class Resource {
+        @JsonProperty("original_type")
+        private String originalType;
+        @JsonProperty("algorithm")
+        private String algorithm;
+        @JsonProperty("ciphertext")
+        private String ciphertext;
+        @JsonProperty("associated_data")
+        private String associatedData;
+        @JsonProperty("nonce")
+        private String nonce;
+    }
 
     @NoArgsConstructor
     @Data
@@ -130,4 +148,6 @@ public class OrderCallBackReq {
             }
         }
     }
+
+
 }

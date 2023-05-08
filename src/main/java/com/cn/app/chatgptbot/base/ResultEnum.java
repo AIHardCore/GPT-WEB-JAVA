@@ -8,6 +8,7 @@ public enum ResultEnum {
 
     SUCCESS(200,"接口响应成功"),
     FAIL(1,"接口响应失败"),
+    NOT_OPENID(50001,"未授权微信openid"),
 
     ;
     private Integer code;

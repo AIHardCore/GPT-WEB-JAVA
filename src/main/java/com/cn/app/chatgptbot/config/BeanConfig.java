@@ -35,7 +35,7 @@ public class BeanConfig {
 
     @Bean(name = "wechatPay2Credentials")
     public WechatPay2Credentials wechatPay2Credentials(@Qualifier("privateKey") PrivateKey privateKey) {
-        return new WechatPay2Credentials(wxPay.getMchId(), new PrivateKeySigner(wxPay.getMchId(), privateKey));
+        return new WechatPay2Credentials(wxPay.getMchId(), new PrivateKeySigner(wxPay.getSerialNumber(), privateKey));
     }
 
     @Bean(name = "autoUpdateCertificatesVerifier")

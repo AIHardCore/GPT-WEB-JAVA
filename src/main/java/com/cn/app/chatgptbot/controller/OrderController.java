@@ -2,22 +2,15 @@ package com.cn.app.chatgptbot.controller;
 
 import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.model.ali.req.AliPayCreateReq;
-import com.cn.app.chatgptbot.model.base.BaseDeleteEntity;
-import com.cn.app.chatgptbot.model.base.BasePageHelper;
 import com.cn.app.chatgptbot.model.req.*;
-import com.cn.app.chatgptbot.model.res.CreateOrderRes;
 import com.cn.app.chatgptbot.model.wx.PayCallBack;
 import com.cn.app.chatgptbot.model.wx.PrepayResult;
-import com.cn.app.chatgptbot.service.IGptKeyService;
 import com.cn.app.chatgptbot.service.IOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -59,9 +52,9 @@ public class OrderController {
         return orderService.returnUrl(req);
     }
 
-    @RequestMapping(value = "/callback", method = RequestMethod.GET)
+    @RequestMapping(value = "/callback")
     @ApiOperation(value = "支付回调")
-    public PayCallBack callback(OrderCallBackReq req) {
+    public PayCallBack callback(@RequestBody OrderCallBackReq req) {
         return orderService.callback(req);
     }
 
