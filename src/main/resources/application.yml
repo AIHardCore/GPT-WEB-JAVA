@@ -59,6 +59,8 @@ wx:
     notifyUrl:
     #订单关闭地址
     closeUrl: https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/{out_trade_no}/close
+    #订单超时时间(分钟)
+    timeOut: 10
 
   #公众号配置
   gzh:

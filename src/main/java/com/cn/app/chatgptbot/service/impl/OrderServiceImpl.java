@@ -86,7 +86,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
             log.error(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
             throw new CustomException(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
         }
-        Order order = BeanUtil.copyProperties(req, Order.class);
+        Order order = new Order();
+        order.setPayNumber(req.getPayNumber());
+        order.setProductId(req.getProductId());
+        order.setPayType(req.getType());
         order.setUserId(user.getId());
         order.setPrice(product.getPrice().multiply(new BigDecimal(req.getPayNumber())));
         order.setPayType(req.getType());
@@ -102,8 +105,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         Map<String, String> map = new HashMap<>();
         map.put("tradeNo", order.getTradeNo());
         map.put("remark", "订单支付超时，自动取消订单");
-
-        redisDelayQueueUtil.addDelayQueue(map, 10, TimeUnit.MINUTES, RedisDelayQueueEnum.ORDER_PAYMENT_TIMEOUT.getCode());
+        WxPay wxPay = RedisUtil.getCacheObject(RedisKey.WX_PAY.getName());
+        redisDelayQueueUtil.addDelayQueue(map, wxPay.getTimeOut(), TimeUnit.MINUTES, RedisDelayQueueEnum.ORDER_PAYMENT_TIMEOUT.getCode());
         return B.okBuild(result);
     }
 

@@ -104,8 +104,9 @@ public class WxServiceImpl implements IWxService {
      */
     public PrepayResult prepay(String openId, String orderNo, String orderName, long total) {
         WxPay wxPay = RedisUtil.getCacheObject(RedisKey.WX_PAY.getName());
+        WxGZH wxGZH = RedisUtil.getCacheObject(RedisKey.WX_GZH.getName());
         Map params = new HashMap<>();
-        params.put("appid", wxPay.getAppId());
+        params.put("appid", wxGZH.getAppId());
         params.put("mchid", wxPay.getMchId());
         params.put("description", orderName);
         params.put("out_trade_no", orderNo);
@@ -138,7 +139,12 @@ public class WxServiceImpl implements IWxService {
             log.info(currentTimeMillis + "统一下单响应：" + jsonStr);
             JSONObject json = JSONObject.parseObject(jsonStr);
             PrepayResult result = new PrepayResult();
-            result.setAppId(wxPay.getAppId());
+            if (json.containsKey("code")){
+                log.error("下单失败:{}",json.getString("code"));
+                result.setCode(json.getString("code"));
+                result.setMsg("下单失败");
+            }
+            result.setAppId(wxGZH.getAppId());
             result.setTimeStamp(String.valueOf(WXPayUtil.getCurrentTimestamp()));
             result.setNonceStr(WXPayUtil.generateNonceStr());
             result.setSignType("RSA");
@@ -146,7 +152,7 @@ public class WxServiceImpl implements IWxService {
             // 用私钥对信息进行数字签名
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privateKey);
-            signature.update((wxPay.getAppId() + "\n" +
+            signature.update((wxGZH.getAppId() + "\n" +
                     result.getTimeStamp() + "\n" +
                     result.getNonceStr() + "\n" +
                     result.getPackage() + "\n").getBytes("utf-8"));
@@ -154,7 +160,7 @@ public class WxServiceImpl implements IWxService {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CustomException(e.getMessage());
+            throw new RuntimeException(e);
         } finally {
             if (response != null) {
                 try {

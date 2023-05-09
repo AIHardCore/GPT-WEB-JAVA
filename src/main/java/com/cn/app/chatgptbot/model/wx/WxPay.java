@@ -47,4 +47,8 @@ public class WxPay {
      * 订单关闭地址
      */
     private String closeUrl;
+    /**
+     * 订单超时时间(分钟)
+     */
+    private int timeOut = 10;
 }
