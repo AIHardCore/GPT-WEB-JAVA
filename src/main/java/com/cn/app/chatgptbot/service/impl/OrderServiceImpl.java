@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cn.app.chatgptbot.base.B;
 import com.cn.app.chatgptbot.base.PayWay;
+import com.cn.app.chatgptbot.base.RedisDelayQueueEnum;
 import com.cn.app.chatgptbot.config.ali.AliPayConfig;
 import com.cn.app.chatgptbot.constant.RedisKey;
 import com.cn.app.chatgptbot.dao.OrderDao;
@@ -29,6 +30,7 @@ import com.cn.app.chatgptbot.model.wx.PrepayResult;
 import com.cn.app.chatgptbot.model.wx.WxPay;
 import com.cn.app.chatgptbot.service.*;
 import com.cn.app.chatgptbot.utils.JwtUtil;
+import com.cn.app.chatgptbot.utils.RedisDelayQueueUtil;
 import com.cn.app.chatgptbot.utils.RedisUtil;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +48,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 @Service("orderService")
@@ -64,6 +67,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
 
     @Resource
     private IWxService wxService;
+
+    @Resource
+    private RedisDelayQueueUtil redisDelayQueueUtil;
 
     @Override
     public synchronized  B<PrepayResult> createOrder(CreateOrderReq req) {
@@ -93,14 +99,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         long total = product.getPrice().multiply(new BigDecimal(100)).longValue();
         PrepayResult result = wxService.prepay(user.getOpenId(),orderNo,product.getName(),total);
         log.info("PrepayResult：{}", JSON.toJSONString(result));
+        Map<String, String> map = new HashMap<>();
+        map.put("tradeNo", order.getTradeNo());
+        map.put("remark", "订单支付超时，自动取消订单");
+
+        redisDelayQueueUtil.addDelayQueue(map, 10, TimeUnit.MINUTES, RedisDelayQueueEnum.ORDER_PAYMENT_TIMEOUT.getCode());
         return B.okBuild(result);
     }
 
     @Override
     public B<PrepayResult> payOrder(PayOrderReq req) {
         Order order = this.getById(req.getOrderId());
-        if (order.getState() == 2){
+        if (order.getState() == 3){
             return B.finalBuild("订单状态异常无法支付，请联系客服处理！");
+        }
+        if (order.getState() == 2){
+            return B.finalBuild("订单已超时，请重新下单！");
         }
         if (order.getState() == 1){
             return B.finalBuild("订单已支付");
@@ -222,9 +236,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
             //微信支付订单号
             String transactionId = jsonObject.getString("transaction_id");
             log.info("支付开始回调，回调参数：{}",req.toString());
-            QueryWrapper<Order> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("trade_no",resourceDTO.getOutTradeNo());
-            Order order = this.baseMapper.selectOne(queryWrapper);
+            Order order = query(resourceDTO.getOutTradeNo());
             PayCallBack callBack = new PayCallBack("FAIL","业务处理异常");
             if(order.getState() == 1){
                 return new PayCallBack("SUCCESS","处理完成");
@@ -236,7 +248,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
             if (money.compareTo(amount) != 0) {
                 log.info("支付失败,支付金额异常，支付金额(分)：{},订单金额(分)：{}", money, order.getPrice());
                 order.setMsg(String.format("支付失败,支付金额异常，支付金额(分)：%s,订单金额(分)：%s",money,order.getPrice()));
-                order.setState(2);
+                order.setState(3);
                 return callBack;
             }
             if (resourceDTO.getTradeState().equals("SUCCESS")) {
@@ -246,7 +258,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
             } else {
                 log.info("支付失败,支付状态：{}", resourceDTO.getTradeState());
                 order.setMsg("支付失败,支付状态：" + resourceDTO.getTradeState());
-                order.setState(2);
+                order.setState(3);
             }
             order.setOperateTime(LocalDateTime.now());
             this.saveOrUpdate(order);
@@ -327,6 +339,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
         Page<QueryOrderRes> page = new Page<>(req.getPageNumber(), req.getPageSize());
         Page<QueryOrderRes> queryOrderResPage = this.baseMapper.queryOrder(page, req);
         return B.okBuild(queryOrderResPage);
+    }
+
+    @Override
+    public Order query(String tradeNo) {
+        QueryWrapper<Order> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("trade_no",tradeNo);
+        return this.baseMapper.selectOne(queryWrapper);
     }
 
     @Override

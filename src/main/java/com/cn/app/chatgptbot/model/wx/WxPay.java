@@ -43,4 +43,8 @@ public class WxPay {
      * 支付通知的回调地址
      */
     private String notifyUrl;
+    /**
+     * 订单关闭地址
+     */
+    private String closeUrl;
 }

@@ -1,5 +1,6 @@
 package com.cn.app.chatgptbot;
 
+import cn.hutool.extra.spring.EnableSpringUtil;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @MapperScan("com.cn.app.chatgptbot.dao")
 @EnableTransactionManagement
 @EnableAsync
+@EnableSpringUtil
 public class Application {
 
 	/**

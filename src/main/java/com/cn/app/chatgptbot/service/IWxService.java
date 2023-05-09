@@ -37,4 +37,13 @@ public interface IWxService {
      * @return
      */
     PrepayResult prepay(String openId, String orderNo, String orderName, long total);
+
+    /**
+     * 微信关闭订单
+     *
+     * @param tradeNo   订单编号
+     * @return
+     */
+    B close(String tradeNo);
+
 }

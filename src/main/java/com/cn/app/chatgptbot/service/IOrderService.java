@@ -35,6 +35,8 @@ public interface IOrderService extends IService<Order> {
 
     B query(QueryOrderReq req);
 
+    Order query(String tradeNo);
+
     B<String> aliCreateOrder(AliPayCreateReq req) throws Exception;
 
     String  aliCallBack(HttpServletRequest request) throws Exception;

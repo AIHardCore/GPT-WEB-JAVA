@@ -4,6 +4,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.cn.app.chatgptbot.base.B;
+import com.cn.app.chatgptbot.base.ResultEnum;
 import com.cn.app.chatgptbot.constant.RedisKey;
 import com.cn.app.chatgptbot.exception.CustomException;
 import com.cn.app.chatgptbot.model.wx.*;
@@ -14,6 +15,7 @@ import com.wechat.pay.contrib.apache.httpclient.WechatPayHttpClientBuilder;
 import com.wechat.pay.contrib.apache.httpclient.auth.WechatPay2Credentials;
 import com.wechat.pay.contrib.apache.httpclient.auth.WechatPay2Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -152,6 +154,60 @@ public class WxServiceImpl implements IWxService {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new CustomException(e.getMessage());
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (httpClient != null) {
+                try {
+                    httpClient.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 微信关闭订单
+     *
+     * @param tradeNo 订单编号
+     * @return
+     */
+    @Override
+    public B close(String tradeNo) {
+        WxPay wxPay = RedisUtil.getCacheObject(RedisKey.WX_PAY.getName());
+        Map params = new HashMap<>();
+        params.put("mchid", wxPay.getMchId());
+        String body = JSONObject.toJSONString(params);
+        int statusCode = 1;
+        CloseableHttpClient httpClient = null;
+        CloseableHttpResponse response = null;
+        try {
+            // 初始化httpClient
+            httpClient = WechatPayHttpClientBuilder.create().
+                    withCredentials(wechatPay2Credentials).
+                    withValidator(wechatPay2Validator).build();
+            HttpPost httpPost = new HttpPost(wxPay.getCloseUrl().replace("{out_trade_no}",tradeNo));
+            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setEntity(new StringEntity(body, "utf-8"));
+            long currentTimeMillis = System.currentTimeMillis();
+            log.info(currentTimeMillis + ",【{}】订单关闭接口：" + body,tradeNo);
+            // 由客户端执行(发送)POST请求
+            response = httpClient.execute(httpPost);
+            statusCode = response.getStatusLine().getStatusCode();
+            log.info("订单关闭结果状态码：{}",statusCode);
+            if (statusCode == 204){
+                return B.okBuild();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
             if (response != null) {
@@ -169,5 +225,6 @@ public class WxServiceImpl implements IWxService {
                 }
             }
         }
+        return B.finalBuild(String.format("订单【%s】关闭失败！",tradeNo));
     }
 }

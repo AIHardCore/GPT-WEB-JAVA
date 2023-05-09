@@ -57,6 +57,8 @@ wx:
     payUrl: https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi
     #支付回调通知地址
     notifyUrl:
+    #订单关闭地址
+    closeUrl: https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/{out_trade_no}/close
 
   #公众号配置
   gzh:

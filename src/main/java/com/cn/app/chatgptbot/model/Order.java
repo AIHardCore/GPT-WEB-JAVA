@@ -40,9 +40,9 @@ public class Order extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "金额", position = 8)
     private BigDecimal price;
     /**
-     * 状态 0待支付 1支付完成
+     * 状态 0待支付 1支付完成 2超时取消 3支付失败
      */
-    @ApiModelProperty(value = "状态 0待支付 1支付完成", position = 9)
+    @ApiModelProperty(value = "0待支付 1支付完成 2超时取消 3支付失败", position = 9)
     private Integer state;
 
     /**
