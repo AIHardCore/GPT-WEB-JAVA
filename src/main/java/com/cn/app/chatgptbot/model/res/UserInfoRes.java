@@ -27,6 +27,12 @@ public class UserInfoRes implements Serializable {
     @ApiModelProperty(value = "0 普通用户 1 月卡用户 2 管理员")
     private Integer type;
 
+    /**
+     * 头像
+     */
+    @ApiModelProperty(value = "头像", position = 8)
+    private String headImgUrl;
+
     @ApiModelProperty(value = "月卡到期日期", position = 11)
     private LocalDateTime expirationTime;
 

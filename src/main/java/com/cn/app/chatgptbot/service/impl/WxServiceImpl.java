@@ -85,6 +85,7 @@ public class WxServiceImpl implements IWxService {
         String result = HttpUtil.get(url);
         WxUserInfo userInfo = JSON.parseObject(result,WxUserInfo.class);
         if (userInfo.getErrcode() != null){
+            log.error("获取用户授权信息失败:{}",JSON.toJSONString(result));
             throw new CustomException("获取用户信息失败！");
         }
         return userInfo;

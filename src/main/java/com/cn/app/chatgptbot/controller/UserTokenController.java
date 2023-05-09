@@ -75,6 +75,7 @@ public class UserTokenController {
         jsonObject.put("name", user.getName());
         jsonObject.put("type", user.getType());
         jsonObject.put("expirationTime", user.getExpirationTime());
+        jsonObject.put("headImgUrl", user.getHeadImgUrl());
         User nweUser = new User();
         nweUser.setId(user.getId());
         nweUser.setLastLoginTime(LocalDateTime.now());
@@ -114,6 +115,7 @@ public class UserTokenController {
         jsonObject.put("name", user.getName());
         jsonObject.put("type", user.getType());
         jsonObject.put("expirationTime", user.getExpirationTime());
+        jsonObject.put("headImgUrl", user.getHeadImgUrl());
         User nweUser = new User();
         nweUser.setId(user.getId());
         nweUser.setLastLoginTime(LocalDateTime.now());

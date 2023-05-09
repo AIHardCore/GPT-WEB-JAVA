@@ -9,6 +9,7 @@
             u.remaining_times,
             u.type,
             u.`name`,
+            u.`head_img_url`,
             date_format(create_time,'%Y-%m-%d'),
             ifnull(l.dayRemainingTimes,0) as dayRemainingTimes
         FROM
