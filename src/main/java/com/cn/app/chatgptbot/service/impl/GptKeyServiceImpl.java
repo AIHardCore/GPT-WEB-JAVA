@@ -15,7 +15,6 @@ import com.cn.app.chatgptbot.model.req.UpdateKeyStateReq;
 import com.cn.app.chatgptbot.service.IGptKeyService;
 import com.cn.app.chatgptbot.utils.GptUtil;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +52,7 @@ public class GptKeyServiceImpl extends ServiceImpl<GptKeyDao, GptKey> implements
     public B add(String params) {
         GptKey gptKey = JSONObject.parseObject(params, GptKey.class);
         Long count = this.lambdaQuery()
-                .eq(null != gptKey.getKey(), GptKey::getKey,gptKey.getKey())
+                .eq(null != gptKey.getGptKey(), GptKey::getGptKey,gptKey.getGptKey())
                 .count();
         if(count > 0){
             return B.finalBuild("key已存在");
@@ -61,8 +60,8 @@ public class GptKeyServiceImpl extends ServiceImpl<GptKeyDao, GptKey> implements
         gptKey.setCreateTime(LocalDateTime.now());
         gptKey.setOperateTime(LocalDateTime.now());
         this.save(gptKey);
-        GptUtil.add(gptKey.getKey());
-        log.error("新增key：{}======缓存key信息：{}",gptKey.getKey(),GptUtil.getAllKey());
+        GptUtil.add(gptKey.getGptKey());
+        log.error("新增key：{}======缓存key信息：{}",gptKey.getGptKey(),GptUtil.getAllKey());
         return B.build(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg());
     }
 
@@ -74,7 +73,7 @@ public class GptKeyServiceImpl extends ServiceImpl<GptKeyDao, GptKey> implements
         }
         gptKey.setState(gptKey.getState());
         this.saveOrUpdate(gptKey);
-        GptUtil.add(gptKey.getKey());
+        GptUtil.add(gptKey.getGptKey());
         return B.build(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg());
     }
 
@@ -82,7 +81,7 @@ public class GptKeyServiceImpl extends ServiceImpl<GptKeyDao, GptKey> implements
     public B delete(BaseDeleteEntity params) {
         List<GptKey> list = this.lambdaQuery().in(GptKey::getId, params.getIds()).list();
         this.removeByIds(params.getIds());
-        GptUtil.removeKey(list.stream().map(GptKey::getKey).collect(Collectors.toList()));
+        GptUtil.removeKey(list.stream().map(GptKey::getGptKey).collect(Collectors.toList()));
         log.error("删除：{}======缓存key信息：{}",list,GptUtil.getAllKey());
         return B.build(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg());
     }

@@ -191,7 +191,7 @@ public final class GptApi {
     }
 
     public Result checkUser(Integer type, String mainKey,String message,Long logId){
-        List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getKey, mainKey).last("limit 1").list();
+        List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getGptKey, mainKey).last("limit 1").list();
         if(null == gptKeyList || gptKeyList.size() == 0){
             return Result.error("Key 异常 请稍后重试");
         }

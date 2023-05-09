@@ -27,8 +27,8 @@ public class GptKey extends BaseEntity implements Serializable {
      * key
      */
     @ApiModelProperty(value = "key", position = 5)
-    @TableField("`key`")
-    private String key;
+    @TableField("`gpt_key`")
+    private String gptKey;
     /**
      * 使用次数
      */

@@ -49,7 +49,7 @@ public class CheckService {
             session.getBasicRemote().sendText("请先登录");
             return Result.error("请先登录");
         }
-        List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getKey, mainKey).last("limit 1").list();
+        List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getGptKey, mainKey).last("limit 1").list();
         if(null == gptKeyList || gptKeyList.size() == 0){
             session.getBasicRemote().sendText("Key 异常 请稍后重试");
             return Result.error("Key 异常 请稍后重试");
