@@ -76,6 +76,11 @@ public class UserTokenController {
         jsonObject.put("type", user.getType());
         jsonObject.put("expirationTime", user.getExpirationTime());
         jsonObject.put("headImgUrl", user.getHeadImgUrl());
+        if (user.getLastLoginTime() == null){
+            jsonObject.put("firstLogin",1);
+        }else {
+            jsonObject.put("firstLogin",0);
+        }
         User nweUser = new User();
         nweUser.setId(user.getId());
         nweUser.setLastLoginTime(LocalDateTime.now());
@@ -99,15 +104,17 @@ public class UserTokenController {
                 .eq(User::getOpenId, accessTokenInfo.getOpenid())
                 .ne(User::getType,-1)
                 .list();
+        JSONObject jsonObject = new JSONObject();
         if (list == null || list.size() == 0) {
             WxUserInfo userInfo = wxService.getUserInfo(accessTokenInfo.getAccessToken(),accessTokenInfo.getOpenid());
             log.info("微信用户信息：{}", JSON.toJSON(userInfo));
             user = userService.register(userInfo);
+            jsonObject.put("firstLogin",1);
         }else {
             user = list.get(0);
+            jsonObject.put("firstLogin",0);
             log.info("用户信息：{}", JSON.toJSON(user));
         }
-        JSONObject jsonObject = new JSONObject();
         //生成token
         String token = JwtUtil.createToken(user);
         jsonObject.put("token", token);
