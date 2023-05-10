@@ -33,7 +33,6 @@ public class WxPay {
     /**
      * APIv3密钥
      */
-    @JSONField(serialize=false)
     private String secret;
     /**
      * 支付Url

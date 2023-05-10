@@ -241,6 +241,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
             log.info("支付开始回调，回调参数：{}",req.toString());
             Order order = query(resourceDTO.getOutTradeNo());
             PayCallBack callBack = new PayCallBack("FAIL","业务处理异常");
+            if (order == null){
+                log.info("回调处理失败，订单{}不存在！", order.getTradeNo());
+                return callBack;
+            }
             if(order.getState() == 1){
                 return new PayCallBack("SUCCESS","处理完成");
             }
@@ -330,10 +334,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
                     productService.saveOrUpdate(product);
                 }
             }
-        } catch (GeneralSecurityException e) {
+        } catch (IllegalStateException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            log.error(e.getMessage());
             e.printStackTrace();
         }
-
+        log.info("回调处理完成！");
         return new PayCallBack("SUCCESS","处理完成");
     }
 
