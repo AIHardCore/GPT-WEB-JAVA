@@ -27,6 +27,9 @@ public class QueryOrderRes  implements Serializable {
     @ApiModelProperty(value = "金额", position = 8)
     private BigDecimal price;
 
+    @ApiModelProperty(value = "平台订单号", position = 11)
+    private String tradeNo;
+
     @ApiModelProperty(value = "状态 0待支付 1支付完成", position = 9)
     private Integer state;
 
