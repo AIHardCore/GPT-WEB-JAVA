@@ -179,9 +179,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         if(null == userInfo.getExpirationTime() || LocalDateTime.now().compareTo(userInfo.getExpirationTime()) > 0){
             userInfo.setType(1);
         }
-        if(null != userInfo.getExpirationTime() &&  LocalDateTime.now().compareTo(userInfo.getExpirationTime()) <= 0){
-            userInfo.setType(1);
-        }
         List<UserRefuelingKitRes> userRefuelingKitRes = refuelingKitDao.selectUserKit(JwtUtil.getUserId());
         userRefuelingKitRes.forEach( u ->{
             if(u.getExpirationDateTime().compareTo(LocalDateTime.now()) < 0){
