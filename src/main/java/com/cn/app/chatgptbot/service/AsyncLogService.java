@@ -36,7 +36,11 @@ public class AsyncLogService {
     @Async
     public void saveKeyLog(GptKey gptKey,User user){
        this.gptKeyService.saveOrUpdate(gptKey);
-        this.userService.saveOrUpdate(user);
+       this.userService.saveOrUpdate(user);
+    }
+    @Async
+    public void saveKeyLog(GptKey gptKey){
+       this.gptKeyService.saveOrUpdate(gptKey);
     }
 
     @Async
@@ -61,5 +65,11 @@ public class AsyncLogService {
     @Async
     public void saveUseLog(UseLog useLog){
         this.useLogService.save(useLog);
+    }
+
+    @Async
+    public void saveUseLog(UseLog useLog,User user){
+        this.useLogService.save(useLog);
+        this.userService.saveOrUpdate(user);
     }
 }

@@ -223,7 +223,7 @@ public final class GptApi {
                     useLog.setUseType(1);
                 }else {
                     //判断套餐是否到期
-                    if(user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
+                    if(user.getExpirationTime() != null && user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
                         //次数用户 查询用户次数
                         if(user.getRemainingTimes() < 1){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
@@ -231,16 +231,24 @@ public final class GptApi {
                         }
                         //是否已达今日已达上线
                         Integer dayUseNumber = useLogService.getDayUseNumber();
-                        if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
+                        if((dayUseNumber + 1) > 5){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("当日已超过最大访问次数");
                         }
                         useLog.setUseType(1);
                         user.setRemainingTimes(user.getRemainingTimes() - 1);
-                    }else {
+                    }else if(user.getExpirationTime() != null && user.getExpirationTime().compareTo(LocalDateTime.now()) > 0){
                         //是否已达今日已达上线
                         Integer dayUseNumber = useLogService.getDayUseNumber();
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
+                            //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
+                            return Result.error("当日已超过最大访问次数");
+                        }
+                        useLog.setUseType(2);
+                    }else {
+                        //是否已达今日已达上线
+                        Integer dayUseNumber = useLogService.getDayUseNumber();
+                        if((dayUseNumber + 1) > 5){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("当日已超过最大访问次数");
                         }else {

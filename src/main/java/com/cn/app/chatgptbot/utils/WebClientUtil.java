@@ -3,6 +3,7 @@ package com.cn.app.chatgptbot.utils;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.cn.app.chatgptbot.base.Result;
 import com.cn.app.chatgptbot.constant.CommonConst;
 import com.cn.app.chatgptbot.exception.CustomException;
 import com.cn.app.chatgptbot.model.billing.BillingUsage;
@@ -66,7 +67,7 @@ public final class WebClientUtil {
      * @param openKey   the open key
      * @return the string
      */
-    public static JSONObject build(ClientHttpConnector connector, final String url, final Object body, final String openKey,Long useLogId) {
+    public static Result build(ClientHttpConnector connector, final String url, final Object body, final String openKey,Long useLogId) {
 
         final String block = WebClient.builder()
                 .clientConnector(connector)
@@ -110,7 +111,7 @@ public final class WebClientUtil {
                 .block();
         JSONObject jsonObject = JSONObject.parseObject(block);
         jsonObject.put("logId",useLogId);
-        return jsonObject;
+        return Result.data(jsonObject);
     }
     public static BillingUsage build(final String url, final String openKey) {
         final BillingUsage billingUsage = WebClient.builder()

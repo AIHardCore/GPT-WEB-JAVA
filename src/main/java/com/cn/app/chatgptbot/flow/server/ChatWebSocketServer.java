@@ -7,8 +7,8 @@ import com.cn.app.chatgptbot.flow.chat.ChatRequestParameter;
 import com.cn.app.chatgptbot.flow.model.ChatModel;
 import com.cn.app.chatgptbot.flow.service.CheckService;
 import com.cn.app.chatgptbot.model.UseLog;
+import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.service.AsyncLogService;
-import com.cn.app.chatgptbot.service.IUseLogService;
 import com.cn.app.chatgptbot.utils.GptUtil;
 import com.cn.app.chatgptbot.utils.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -117,12 +117,13 @@ public class ChatWebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         final String mainKey = GptUtil.getMainKey();
-        Result result = checkService.checkUser(mainKey, this.userId,session);
+        User user = new User();
+        Result result = checkService.checkUser(mainKey, this.userId,session,user);
         if(result.getCode() != 20000){
             session.getBasicRemote().sendText(result.getMsg());
             return;
         }
-        UseLog data = (UseLog) result.getData();
+        UseLog data = (UseLog)result.getData();
         BeanUtil.copyProperties(data,this.useLog);
         log.info(userId + "--" + message);
         // 记录日志
@@ -142,7 +143,7 @@ public class ChatWebSocketServer {
             }
         }else {
             this.useLog.setAnswer(answer);
-            asyncLogService.saveUseLog(useLog);
+            asyncLogService.saveUseLog(useLog,user);
         }
     }
 

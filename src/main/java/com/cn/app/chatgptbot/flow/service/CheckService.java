@@ -9,7 +9,9 @@ import com.cn.app.chatgptbot.model.User;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
 import com.cn.app.chatgptbot.service.*;
 import com.cn.app.chatgptbot.utils.RedisUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -43,7 +45,9 @@ public class CheckService {
 
     @Resource
     AsyncLogService asyncLogService;
-    public Result checkUser(String mainKey, Long userId, Session session) throws IOException {
+
+    @Transactional(rollbackFor = Exception.class)
+    public Result checkUser(String mainKey, Long userId, Session session,User user) throws IOException {
         String redisToken  = RedisUtil.getCacheObject(CommonConst.REDIS_KEY_PREFIX_TOKEN + userId);
         if(StringUtils.isEmpty(redisToken)){
             //session.getBasicRemote().sendText("请先登录");
@@ -58,7 +62,7 @@ public class CheckService {
         UseLog useLog = new UseLog();
         useLog.setGptKey(mainKey);
         useLog.setUserId(userId);
-        User user = userService.getById(userId);
+        BeanUtils.copyProperties(userService.getById(userId),user);
         if (user.getDeleted()){
             return Result.error("用户状态异常，请稍后重试");
         }
@@ -86,24 +90,32 @@ public class CheckService {
                     useLog.setUseType(1);
                 }else {
                     //判断套餐是否到期
-                    if(user.getExpirationTime() != null && user.getExpirationTime().compareTo(LocalDateTime.now()) < 0){
+                    if(user.getExpirationTime() != null && user.getExpirationTime().compareTo(LocalDateTime.now()) < 0) {
                         //次数用户 查询用户次数
-                        if(user.getRemainingTimes() < 1){
+                        if (user.getRemainingTimes() < 1) {
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("剩余次数不足,请充值");
                         }
+                        //是否已达今日已达上线
+                        Integer dayUseNumber = useLogService.getDayUseNumber(userId);
+                        if ((dayUseNumber + 1) > 5) {
+                            //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
+                            return Result.error("当日已超过最大访问次数");
+                        }
+                        useLog.setUseType(1);
+                        user.setRemainingTimes(user.getRemainingTimes() - 1);
+                    }else if(user.getExpirationTime() != null && user.getExpirationTime().compareTo(LocalDateTime.now()) > 0){
                         //是否已达今日已达上线
                         Integer dayUseNumber = useLogService.getDayUseNumber(userId);
                         if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("当日已超过最大访问次数");
                         }
-                        useLog.setUseType(1);
-                        user.setRemainingTimes(user.getRemainingTimes() - 1);
+                        useLog.setUseType(2);
                     }else { //套餐到期消耗使用次数
                         //是否已达今日已达上线
                         Integer dayUseNumber = useLogService.getDayUseNumber(userId);
-                        if((dayUseNumber + 1) > user.getCardDayMaxNumber()){
+                        if((dayUseNumber + 1) > 5){
                             //session.getBasicRemote().sendText("月卡过期或当日已超过最大访问次数");
                             return Result.error("当日已超过最大访问次数");
                         }else {
@@ -117,7 +129,7 @@ public class CheckService {
         GptKey gptKey = gptKeyList.get(0);
         gptKey.setUseNumber(gptKey.getUseNumber()+1);
         gptKey.setOperateTime(LocalDateTime.now());
-        asyncLogService.saveKeyLog(gptKey,user);
+        asyncLogService.saveKeyLog(gptKey);
         return Result.data(useLog);
     }
 }
