@@ -315,11 +315,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
                     if (product.getType() == 4) {
                         //终身
                         if(null == user.getExpirationTime()){
-                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 9999 * order.getPayNumber()));
                         } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
-                            user.setExpirationTime(user.getExpirationTime().plusDays(30L * 99999 * order.getPayNumber()));
+                            user.setExpirationTime(user.getExpirationTime().plusDays(30L * 9999 * order.getPayNumber()));
                         } else {
-                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 9999 * order.getPayNumber()));
                         }
                         user.setCardDayMaxNumber(product.getMonthlyNumber());
                         user.setType(5);
