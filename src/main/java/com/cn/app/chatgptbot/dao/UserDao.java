@@ -16,6 +16,8 @@ public interface UserDao extends BaseMapper<User> {
 
     UserInfoRes getUserInfo(@Param("userId") Long userId);
 
+    void accumulationTimes(@Param("times") int times, @Param("userId") Long userId);
+
     AdminHomeRes adminHome();
 
 }

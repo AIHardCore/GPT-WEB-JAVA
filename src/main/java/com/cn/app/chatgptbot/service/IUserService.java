@@ -10,6 +10,7 @@ import com.cn.app.chatgptbot.model.req.UserHomeReq;
 import com.cn.app.chatgptbot.model.res.AdminHomeRes;
 import com.cn.app.chatgptbot.model.res.UserInfoRes;
 import com.cn.app.chatgptbot.model.wx.WxUserInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -70,5 +71,5 @@ public interface IUserService extends IService<User> {
 
     B<UserInfoRes> getType(Long userId);
 
-
+    void accumulationTimes(int times, Long userId);
 }

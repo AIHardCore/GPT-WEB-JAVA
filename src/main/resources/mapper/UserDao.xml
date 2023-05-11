@@ -18,6 +18,11 @@
 
         where u.id = #{userId}
     </select>
+
+    <update id="accumulationTimes">
+        update `user` set remaining_times = remaining_times+#{times}, operate_time = now() where id = #{userId}
+    </update>
+
     <select id="adminHome" resultType="com.cn.app.chatgptbot.model.res.AdminHomeRes">
         SELECT
             ifnull( u.dayUserNumber, 0 ) AS dayUserNumber,

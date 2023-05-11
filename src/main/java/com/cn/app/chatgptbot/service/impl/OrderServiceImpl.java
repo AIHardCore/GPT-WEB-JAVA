@@ -271,64 +271,70 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
             this.saveOrUpdate(order);
             if (order.getState() == 1) {
                 Product product = productService.getById(order.getProductId());
-                User user = userService.getById(order.getUserId());
-                if (product.getType() == 1) {
-                    //月卡
-                    if(null == user.getExpirationTime()){
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * order.getPayNumber()));
-                    } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
-                        user.setExpirationTime(user.getExpirationTime().plusDays(30L * order.getPayNumber()));
-                    } else {
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                if (product.getType() == 0) {
+                    //次数
+                    userService.accumulationTimes(product.getNumberTimes(),order.getUserId());
+                }else {
+                    User user = userService.getById(order.getUserId());
+                    if (product.getType() == 1) {
+                        //月卡
+                        if(null == user.getExpirationTime()){
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * order.getPayNumber()));
+                        } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
+                            user.setExpirationTime(user.getExpirationTime().plusDays(30L * order.getPayNumber()));
+                        } else {
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                        }
+                        user.setCardDayMaxNumber(product.getMonthlyNumber());
+                        user.setType(2);
                     }
-                    user.setCardDayMaxNumber(product.getMonthlyNumber());
-                    user.setType(2);
-                }
-                if (product.getType() == 2) {
-                    //季卡
-                    if(null == user.getExpirationTime()){   //未开通
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
-                    } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {   //未过期
-                        user.setExpirationTime(user.getExpirationTime().plusDays(30L * 3 * order.getPayNumber()));
-                    } else {    //已过期
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                    if (product.getType() == 2) {
+                        //季卡
+                        if(null == user.getExpirationTime()){   //未开通
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                        } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {   //未过期
+                            user.setExpirationTime(user.getExpirationTime().plusDays(30L * 3 * order.getPayNumber()));
+                        } else {    //已过期
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 3 * order.getPayNumber()));
+                        }
+                        user.setCardDayMaxNumber(product.getMonthlyNumber());
+                        user.setType(3);
                     }
-                    user.setCardDayMaxNumber(product.getMonthlyNumber());
-                    user.setType(3);
-                }
-                if (product.getType() == 3) {
-                    //年卡
-                    if(null == user.getExpirationTime()){
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 12 * order.getPayNumber()));
-                    } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
-                        user.setExpirationTime(user.getExpirationTime().plusDays(30L * 12 * order.getPayNumber()));
-                    } else {
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 12 * order.getPayNumber()));
+                    if (product.getType() == 3) {
+                        //年卡
+                        if(null == user.getExpirationTime()){
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 12 * order.getPayNumber()));
+                        } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
+                            user.setExpirationTime(user.getExpirationTime().plusDays(30L * 12 * order.getPayNumber()));
+                        } else {
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 12 * order.getPayNumber()));
+                        }
+                        user.setCardDayMaxNumber(product.getMonthlyNumber());
+                        user.setType(4);
                     }
-                    user.setCardDayMaxNumber(product.getMonthlyNumber());
-                    user.setType(4);
-                }
-                if (product.getType() == 4) {
-                    //终身
-                    if(null == user.getExpirationTime()){
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
-                    } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
-                        user.setExpirationTime(user.getExpirationTime().plusDays(30L * 99999 * order.getPayNumber()));
-                    } else {
-                        user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                    if (product.getType() == 4) {
+                        //终身
+                        if(null == user.getExpirationTime()){
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                        } else if (LocalDateTime.now().compareTo(user.getExpirationTime()) < 0) {
+                            user.setExpirationTime(user.getExpirationTime().plusDays(30L * 99999 * order.getPayNumber()));
+                        } else {
+                            user.setExpirationTime(LocalDateTime.now().plusDays(30L * 99999 * order.getPayNumber()));
+                        }
+                        user.setCardDayMaxNumber(product.getMonthlyNumber());
+                        user.setType(5);
                     }
-                    user.setCardDayMaxNumber(product.getMonthlyNumber());
-                    user.setType(5);
+                    if (product.getType() == 5) {
+                        //加油包
+                        RefuelingKit kit = new RefuelingKit();
+                        kit.setProductId(product.getId());
+                        kit.setNumberTimes(product.getNumberTimes());
+                        kit.setUserId(order.getUserId());
+                        refuelingKitService.save(kit);
+                    }
+                    userService.saveOrUpdate(user);
                 }
-                if (product.getType() == 5) {
-                    //加油包
-                    RefuelingKit kit = new RefuelingKit();
-                    kit.setProductId(product.getId());
-                    kit.setNumberTimes(product.getNumberTimes());
-                    kit.setUserId(order.getUserId());
-                    refuelingKitService.save(kit);
-                }
-                userService.saveOrUpdate(user);
+
                 if(order.getState() == 1){
                     product.setStock(product.getStock() - order.getPayNumber());
                     productService.saveOrUpdate(product);

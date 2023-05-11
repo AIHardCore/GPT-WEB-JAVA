@@ -245,4 +245,9 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements IUser
         }
         return B.okBuild(userInfo);
     }
+
+    @Override
+    public void accumulationTimes(int times, Long userId) {
+        this.baseMapper.accumulationTimes(times,userId);
+    }
 }
