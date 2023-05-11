@@ -73,18 +73,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements IO
 
     @Override
     public synchronized  B<PrepayResult> createOrder(CreateOrderReq req) {
+        User user = userService.getById(JwtUtil.getUserId());
+        //状态检查
+        if (user == null){
+            log.error(String.format("用户：id[%s]状态异常！下单失败！",JwtUtil.getUserId()));
+            return B.finalBuild("状态异常！下单失败！");
+        }
+        if (user.getDeleted()){
+            log.error(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",JwtUtil.getUserId(),user.getName()));
+            return B.finalBuild("状态异常！下单失败！");
+        }
         Product product = productService.getById(req.getProductId());
         if (null == product) {
             return B.finalBuild("商品异常");
         }
         if(product.getStock() < req.getPayNumber()){
             return B.finalBuild("库存不足");
-        }
-        User user = userService.getById(JwtUtil.getUserId());
-        //状态检查
-        if (user.getDeleted()){
-            log.error(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
-            throw new CustomException(String.format("用户：id[%s]、name[%s]状态异常！下单失败！",user.getId(),user.getName()));
         }
         Order order = new Order();
         order.setPayNumber(req.getPayNumber());

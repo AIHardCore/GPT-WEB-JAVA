@@ -46,12 +46,12 @@ public class CheckService {
     public Result checkUser(String mainKey, Long userId, Session session) throws IOException {
         String redisToken  = RedisUtil.getCacheObject(CommonConst.REDIS_KEY_PREFIX_TOKEN + userId);
         if(StringUtils.isEmpty(redisToken)){
-            session.getBasicRemote().sendText("请先登录");
+            //session.getBasicRemote().sendText("请先登录");
             return Result.error("请先登录");
         }
         List<GptKey> gptKeyList = gptKeyService.lambdaQuery().eq(GptKey::getGptKey, mainKey).last("limit 1").list();
         if(null == gptKeyList || gptKeyList.size() == 0){
-            session.getBasicRemote().sendText("Key 异常 请稍后重试");
+            //session.getBasicRemote().sendText("Key 异常 请稍后重试");
             return Result.error("Key 异常 请稍后重试");
         }
         //查询当前用户信息
@@ -59,6 +59,9 @@ public class CheckService {
         useLog.setGptKey(mainKey);
         useLog.setUserId(userId);
         User user = userService.getById(userId);
+        if (user.getDeleted()){
+            return Result.error("用户状态异常，请稍后重试");
+        }
         B<UserInfoRes> userInfo = userService.getType(userId);
         Integer type = userInfo.getData().getType();
         if (type != -1){
