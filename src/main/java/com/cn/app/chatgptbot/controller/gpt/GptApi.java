@@ -201,8 +201,8 @@ public final class GptApi {
         useLog.setUseValue(message);
         useLog.setUserId(JwtUtil.getUserId());
         User user = userService.getById(JwtUtil.getUserId());
-        if (type != -1){
-            if(type == 1){
+        if (user.getType() != -1){
+            if(user.getType() == 1){
                 //判断剩余次数
                 if(user.getRemainingTimes() < 1){
                     //session.getBasicRemote().sendText("${<INSUFFICIENT_FREQUENCY>}");

@@ -66,10 +66,8 @@ public class CheckService {
         if (user.getDeleted()){
             return Result.error("用户状态异常，请稍后重试");
         }
-        B<UserInfoRes> userInfo = userService.getType(userId);
-        Integer type = userInfo.getData().getType();
-        if (type != -1){
-            if(type == 1){
+        if (user.getType() != -1){
+            if(user.getType() == 1){
                 //判断剩余次数
                 if(user.getRemainingTimes() < 1){
                     //session.getBasicRemote().sendText("${<INSUFFICIENT_FREQUENCY>}");
