@@ -38,8 +38,6 @@ public final class GptUtil {
     IGptKeyService gptKeyService;
     @Resource
     AsyncLogService asyncLogService;
-    @Resource
-    IPayConfigService payConfigService;
 
     @Resource
     RedisUtil redisUtil;
@@ -94,8 +92,6 @@ public final class GptUtil {
         gptUtil = this;
         gptUtil.gptKeyService = this.gptKeyService;
         gptUtil.asyncLogService = this.asyncLogService;
-        PayConfig payConfig = payConfigService.getById(1);
-        redisUtil.setCacheObject("payConfig",payConfig);
     }
 
     /**
